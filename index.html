@@ -336,6 +336,16 @@
     maxZoom: 19
   }).addTo(map);
 
+  // Interaksi manual di peta (klik, zoom, geser) jeda slideshow dulu -
+  // pauseSlideshow() sudah otomatis lanjut lagi sendiri setelah RESUME_DELAY_MS.
+  // isProgrammaticMove membedakan flyTo yang dipicu slideshow sendiri (jangan
+  // ikut jeda) dari interaksi asli oleh user.
+  var isProgrammaticMove = false;
+  map.on('click zoomstart dragstart', function(){
+    if (isProgrammaticMove) return;
+    pauseSlideshow();
+  });
+
   var markerByName = {};
   var allPeople = [];
   var activeFilter = 'semua';
@@ -749,7 +759,9 @@
 
     slideshowIndex = slideshowIndex % activeMapUsers.length;
     var targetPerson = activeMapUsers[slideshowIndex];
+    isProgrammaticMove = true;
     selectPerson(targetPerson.nama);
+    map.once('moveend', function(){ isProgrammaticMove = false; });
     slideshowIndex++;
   }
 
