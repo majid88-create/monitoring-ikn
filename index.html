@@ -148,6 +148,13 @@
 
   @keyframes pulse{ 0%{ transform:scale(0.5); opacity:0.85; } 100%{ transform:scale(2); opacity:0; } }
 
+  .route-flow{
+    stroke-dasharray: 10 14;
+    animation: routeFlow 0.9s linear infinite;
+  }
+  @keyframes routeFlow{ to{ stroke-dashoffset: -48; } }
+  @media (prefers-reduced-motion: reduce){ .route-flow{ animation:none; } }
+
   /* ---------- Segmented filter ---------- */
   .seg-row{ padding:16px 16px 0; }
   .segmented{
@@ -344,7 +351,7 @@
   var resumeTimer = null; 
   var slideshowIndex = 0;
   var isSlideshowStopped = false;
-  var SLIDESHOW_SPEED_MS = 5000; 
+  var SLIDESHOW_SPEED_MS = 7000; 
   var RESUME_DELAY_MS = 60000; 
 
   function formatJam(detik){
@@ -370,6 +377,20 @@
       if (diff > 0) total += diff;
     });
     return total;
+  }
+
+  function ringkasanLokasi(segmen){
+    var perLokasi = {};
+    (segmen || []).forEach(function(s){
+      var mulai = new Date(s.mulai), selesai = new Date(s.selesai);
+      var diff = (selesai - mulai) / 1000;
+      if (diff <= 0) return;
+      var nama = s.nama || 'Tidak diketahui';
+      perLokasi[nama] = (perLokasi[nama] || 0) + diff;
+    });
+    return Object.keys(perLokasi)
+      .map(function(nama){ return { nama: nama, detik: perLokasi[nama] }; })
+      .sort(function(a, b){ return b.detik - a.detik; });
   }
 
   function tagInfo(sumber){
@@ -523,6 +544,8 @@
     if (isFirst && bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
   }
 
+  var routeLayer = null;
+
   function selectPerson(nama){
     selectedName = nama;
     Object.keys(markerByName).forEach(function(key){
@@ -540,6 +563,19 @@
       map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 15), { duration: reduceMotion ? 0 : 1.1 });
     }
     document.querySelectorAll('.person').forEach(function(el){ el.classList.toggle('selected', el.dataset.nama === nama); });
+
+    if (routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
+    var p = allPeople.find(function(x){ return x.nama === nama; });
+    if (p && p.gps && p.gps.jalur && p.gps.jalur.length > 1){
+      var warnaRute = (p.sumber === 'lapangan+kantor') ? '#5A78FF' : '#34E27E';
+      routeLayer = L.polyline(p.gps.jalur, {
+        color: warnaRute, weight: 3, opacity: 0.85, lineCap: 'round',
+        className: reduceMotion ? '' : 'route-flow'
+      }).addTo(map);
+      var routeEl = routeLayer.getElement();
+      if (routeEl) routeEl.style.filter = 'drop-shadow(0 0 4px ' + warnaRute + ')';
+      routeLayer.bringToBack();
+    }
   }
 
   function renderRoster(animate){
