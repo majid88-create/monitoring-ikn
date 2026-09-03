@@ -574,7 +574,7 @@
         : '';
 
       var jadwalLine = '';
-      if (p.sumber === 'lapangan+kantor' && ((p.jadwalGps && p.jadwalGps.length) || p.jadwalKantorJam)) {
+      if (p.sumber === 'lapangan+kantor' && ((p.jadwalGps && p.jadwalGps.length) || p.totalKantorHariIni)) {
         var segLapangan = (p.jadwalGps || []).map(function(j){
           var s = pctFromIso(j.mulai), e = pctFromIso(j.selesai);
           var w = Math.max(e - s, 0.3);
@@ -582,15 +582,17 @@
         }).join('');
 
         var segKantor = '';
-        if (p.jadwalKantorJam) {
-          segKantor = p.jadwalKantorJam.map(function(detik, jam){
-            if (!detik) return '';
+        if (p.intensitasKantorPerJam) {
+          var maxJam = Math.max.apply(null, p.intensitasKantorPerJam);
+          segKantor = p.intensitasKantorPerJam.map(function(cnt, jam){
+            if (!cnt) return '';
             var s = (jam / 24) * 100, w = 100 / 24;
-            var opacity = Math.min(Math.max(detik / 3600, 0.25), 1).toFixed(2);
+            var opacity = maxJam > 0 ? Math.min(Math.max(cnt / maxJam, 0.25), 1).toFixed(2) : 0.25;
             return '<div class="seg-kantor" style="left:' + s.toFixed(2) + '%;width:' + w.toFixed(2) + '%;opacity:' + opacity + '"></div>';
           }).join('');
         }
-        var totalLapanganKantor = (p.komputer ? (p.komputer.aktifDetik || 0) : 0) +
+
+        var totalLapanganKantor = (p.totalKantorHariIni || 0) +
           totalDetikSegmen(p.jadwalGps, ['Kantor', '304ghnsR']);
 
         jadwalLine = '<div class="pmeta">Jam aktif lapangan &amp; kantor &middot; <b>' + formatJam(totalLapanganKantor) + '</b></div>' +
