@@ -289,7 +289,6 @@
 <div class="stats" id="stats">
   <div class="stat"><div class="num mono" id="statOnline">0</div><div class="lbl">Lapangan online</div></div>
   <div class="stat"><div class="num mono" id="statKantor">0</div><div class="lbl">Aktif di komputer</div></div>
-  <div class="stat"><div class="num mono" id="statGab">0</div><div class="lbl">Lapangan + kantor</div></div>
   <div class="stat"><div class="num mono" id="statTotal">0</div><div class="lbl">Total personil</div></div>
 </div>
 
@@ -305,7 +304,6 @@
         <!-- TEMPAT BADGE NOTIFIKASI DITAMBAHKAN DI SINI -->
         <button class="seg-btn" data-filter="semua" data-active="true">Semua <span class="badge hidden" id="badge-semua">0</span></button>
         <button class="seg-btn" data-filter="lapangan">Pengawas <span class="badge hidden" id="badge-lapangan">0</span></button>
-        <button class="seg-btn" data-filter="kantor">Kantor <span class="badge hidden" id="badge-kantor">0</span></button>
         <button class="seg-btn" data-filter="lapangan+kantor">Perencana <span class="badge hidden" id="badge-gabungan">0</span></button>
       </div>
     </div>
@@ -413,8 +411,7 @@
   function renderStats(people, animate){
     var online = people.filter(function(p){ return p.gps && p.gps.online; }).length;
     var kantor = people.filter(function(p){ return p.komputer; }).length;
-    var gab = people.filter(function(p){ return p.sumber === 'lapangan+kantor'; }).length;
-    var totals = { statOnline: online, statKantor: kantor, statGab: gab, statTotal: people.length };
+    var totals = { statOnline: online, statKantor: kantor, statTotal: people.length };
     
     Object.keys(totals).forEach(function(id){
       var el = document.getElementById(id);
