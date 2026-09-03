@@ -378,16 +378,25 @@
     return { label: 'Pengawas', cls: '' };
   }
 
-  function makeIcon(gpsOnline, kompAktif){
+  function makeIcon(gpsOnline, kompAktif, sumber){
     if (kompAktif && !gpsOnline) {
       return L.divIcon({
         html: '<span class="marker-dot komp-online"><span class="pulse-ring komp-pulse"></span></span>',
         className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8]
       });
     }
-    var pulse = gpsOnline ? '<span class="pulse-ring"></span>' : '';
+    if (!gpsOnline) {
+      return L.divIcon({
+        html: '<span class="marker-dot offline"></span>',
+        className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8]
+      });
+    }
+    // Online: warna ikut peran - hijau Pengawas, biru Perencana.
+    var perencana = (sumber === 'lapangan+kantor');
+    var dotCls = perencana ? 'komp-online' : 'online';
+    var pulseCls = perencana ? 'komp-pulse' : '';
     return L.divIcon({
-      html: '<span class="marker-dot ' + (gpsOnline ? 'online' : 'offline') + '">' + pulse + '</span>',
+      html: '<span class="marker-dot ' + dotCls + '"><span class="pulse-ring ' + pulseCls + '"></span></span>',
       className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8]
     });
   }
@@ -487,9 +496,9 @@
       var marker = markerByName[p.nama];
       if (marker){
         marker.setLatLng(latlng);
-        marker.setIcon(makeIcon(gpsOnline, kompAktif));
+        marker.setIcon(makeIcon(gpsOnline, kompAktif, p.sumber));
       } else {
-        marker = L.marker(latlng, { icon: makeIcon(gpsOnline, kompAktif) }).addTo(map);
+        marker = L.marker(latlng, { icon: makeIcon(gpsOnline, kompAktif, p.sumber) }).addTo(map);
         markerByName[p.nama] = marker;
       }
       
