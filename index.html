@@ -304,9 +304,9 @@
         <div class="seg-highlight" id="segHighlight"></div>
         <!-- TEMPAT BADGE NOTIFIKASI DITAMBAHKAN DI SINI -->
         <button class="seg-btn" data-filter="semua" data-active="true">Semua <span class="badge hidden" id="badge-semua">0</span></button>
-        <button class="seg-btn" data-filter="lapangan">Lapangan <span class="badge hidden" id="badge-lapangan">0</span></button>
+        <button class="seg-btn" data-filter="lapangan">Pengawas <span class="badge hidden" id="badge-lapangan">0</span></button>
         <button class="seg-btn" data-filter="kantor">Kantor <span class="badge hidden" id="badge-kantor">0</span></button>
-        <button class="seg-btn" data-filter="lapangan+kantor">Gabungan <span class="badge hidden" id="badge-gabungan">0</span></button>
+        <button class="seg-btn" data-filter="lapangan+kantor">Perencana <span class="badge hidden" id="badge-gabungan">0</span></button>
       </div>
     </div>
     <div class="roster" id="roster">
@@ -363,10 +363,21 @@
     return (detik / 86400) * 100;
   }
 
+  function totalDetikSegmen(segmen, kecualikanNama){
+    var total = 0;
+    (segmen || []).forEach(function(s){
+      if (kecualikanNama && kecualikanNama.indexOf(s.nama) !== -1) return;
+      var mulai = new Date(s.mulai), selesai = new Date(s.selesai);
+      var diff = (selesai - mulai) / 1000;
+      if (diff > 0) total += diff;
+    });
+    return total;
+  }
+
   function tagInfo(sumber){
     if (sumber === 'kantor') return { label: 'Kantor', cls: 'kantor' };
-    if (sumber === 'lapangan+kantor') return { label: 'Lapangan + Kantor', cls: 'gab' };
-    return { label: 'Lapangan', cls: '' };
+    if (sumber === 'lapangan+kantor') return { label: 'Perencana', cls: 'gab' };
+    return { label: 'Pengawas', cls: '' };
   }
 
   function makeIcon(gpsOnline, kompAktif){
@@ -582,7 +593,10 @@
             return '<div class="seg-kantor" style="left:' + s.toFixed(2) + '%;width:' + w.toFixed(2) + '%;opacity:' + opacity + '"></div>';
           }).join('');
         }
-        jadwalLine = '<div class="pmeta">Jam aktif lapangan &amp; kantor &middot; 00:00\u201324:00</div>' +
+        var totalLapanganKantor = (p.komputer ? (p.komputer.aktifDetik || 0) : 0) +
+          totalDetikSegmen(p.jadwalGps, ['Kantor', '304ghnsR']);
+
+        jadwalLine = '<div class="pmeta">Jam aktif lapangan &amp; kantor &middot; <b>' + formatJam(totalLapanganKantor) + '</b></div>' +
           '<div class="jadwalbar-gab"><div class="lane lane-lapangan">' + segLapangan + '</div><div class="lane lane-kantor">' + segKantor + '</div></div>';
       } else if (p.jadwalGps && p.jadwalGps.length) {
         var segs = p.jadwalGps.map(function(j){
@@ -590,19 +604,18 @@
           var w = Math.max(e - s, 0.3);
           return '<div class="jadwalbar-seg" style="left:' + s.toFixed(2) + '%;width:' + w.toFixed(2) + '%"></div>';
         }).join('');
-        jadwalLine = '<div class="pmeta">Jam aktif lapangan &middot; 00:00\u201324:00</div><div class="jadwalbar">' + segs + '</div>';
+        var totalLapangan = totalDetikSegmen(p.jadwalGps, null);
+        jadwalLine = '<div class="pmeta">Jam aktif lapangan &middot; <b>' + formatJam(totalLapangan) + '</b></div><div class="jadwalbar">' + segs + '</div>';
       }
 
       var kompLine = '';
-      if (p.komputer){
+      if (p.komputer && p.sumber !== 'lapangan+kantor'){
         var aktif = p.komputer.aktifDetik || 0, idle = p.komputer.idleDetik || 0;
-        kompLine = '<div class="pmeta">Komputer &middot; aktif <b>' + formatJam(aktif) + '</b>, idle ' + formatJam(idle) + '</div>';
-        if (p.sumber !== 'lapangan+kantor'){
-          var totalDet = aktif + idle;
-          var pctAktif = totalDet > 0 ? (aktif / totalDet * 100) : 0;
-          var pctIdle = 100 - pctAktif;
-          kompLine += '<div class="actbar"><div class="fill-active" style="width:' + pctAktif.toFixed(1) + '%"></div><div class="fill-idle" style="width:' + pctIdle.toFixed(1) + '%"></div></div>';
-        }
+        var totalDet = aktif + idle;
+        var pctAktif = totalDet > 0 ? (aktif / totalDet * 100) : 0;
+        var pctIdle = 100 - pctAktif;
+        kompLine = '<div class="pmeta">Komputer &middot; aktif <b>' + formatJam(aktif) + '</b>, idle ' + formatJam(idle) + '</div>' +
+          '<div class="actbar"><div class="fill-active" style="width:' + pctAktif.toFixed(1) + '%"></div><div class="fill-idle" style="width:' + pctIdle.toFixed(1) + '%"></div></div>';
       }
 
       var rowStyle = (animate && !reduceMotion) ? 'animation-delay:' + Math.min(i * 35, 480) + 'ms' : 'opacity:1;transform:none;animation:none';
