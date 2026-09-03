@@ -138,7 +138,6 @@
     border:2px solid rgba(10,15,29,0.95); }
   
   .marker-dot.online{ background:var(--green); box-shadow:0 0 12px var(--green); }
-  /* Efek untuk marker Kantor (Biru) */
   .marker-dot.komp-online{ background:#5A78FF; box-shadow:0 0 12px #5A78FF; }
   .marker-dot.offline{ background:var(--slate); }
   .marker-dot.selected{ outline:3px solid var(--teal); outline-offset:2px; }
@@ -183,7 +182,6 @@
   .person.clickable:hover{ background:var(--surface-2); }
   .person.selected{ border-color:var(--teal); background:var(--teal-dim); }
   
-  /* EFEK KETIKA ADA PERSONIL BARU HADIR/AKTIF */
   @keyframes highlightNew {
     0% { background: rgba(52, 226, 126, 0.25); border-color: rgba(52, 226, 126, 0.8); }
     100% { background: transparent; border-color: transparent; }
@@ -303,6 +301,7 @@
   var REFRESH_INTERVAL_MS = 60000;
   var KANTOR_LAT = -7.3233465;
   var KANTOR_LNG = 112.7435520;
+  var CACHE_KEY = "ikn_data_cache_v1"; // Kunci untuk penyimpanan memori
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var map = L.map('map', { zoomControl: true }).setView([-7.30, 112.75], 12);
@@ -325,11 +324,11 @@
 
   // ============ VARIABEL SLIDESHOW ============
   var slideshowTimer = null;
-  var resumeTimer = null; // Timer jeda 1 menit
+  var resumeTimer = null; 
   var slideshowIndex = 0;
   var isSlideshowStopped = false;
   var SLIDESHOW_SPEED_MS = 5000; 
-  var RESUME_DELAY_MS = 60000; // Hitung mundur 60 detik (1 menit)
+  var RESUME_DELAY_MS = 60000; 
 
   function formatJam(detik){
     if (detik == null || isNaN(detik)) return '–';
@@ -358,7 +357,6 @@
         className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8]
       });
     }
-    
     var pulse = gpsOnline ? '<span class="pulse-ring"></span>' : '';
     return L.divIcon({
       html: '<span class="marker-dot ' + (gpsOnline ? 'online' : 'offline') + '">' + pulse + '</span>',
@@ -392,7 +390,6 @@
   function updateMarkerTooltip(marker, p, gpsOnline, kompAktif){
     if (gpsOnline || kompAktif){
       var content = '<div class="marker-name">' + p.nama + '</div>';
-      
       if (gpsOnline) {
         if (p.gps.alamat && p.gps.alamat !== 'Unknown' && p.gps.alamat !== '-' && !p.gps.isAutoGeocoded) {
           content += '<div class="marker-loc">' + p.gps.alamat + '</div>';
@@ -400,7 +397,6 @@
       } else if (kompAktif) {
         content += '<div class="marker-loc" style="color:#8FA4FF;">Kantor</div>';
       }
-
       if (marker.getTooltip()){
         marker.setTooltipContent(content);
       } else {
@@ -419,13 +415,9 @@
     people.forEach(function(p){
       var gpsOnline = !!(p.gps && p.gps.online && p.gps.lat != null);
       var kompAktif = !!(p.komputer && p.komputer.aktifDetik > 0);
-      
       var latlng = null;
-      if (gpsOnline) {
-        latlng = [p.gps.lat, p.gps.lng];
-      } else if (kompAktif) {
-        latlng = [KANTOR_LAT, KANTOR_LNG];
-      }
+      if (gpsOnline) { latlng = [p.gps.lat, p.gps.lng]; } 
+      else if (kompAktif) { latlng = [KANTOR_LAT, KANTOR_LNG]; }
 
       if (!latlng) return;
 
@@ -438,11 +430,8 @@
         markerByName[p.nama] = marker;
       }
       
-      if (p.nama === selectedName) {
-        marker.setZIndexOffset(1000);
-      } else {
-        marker.setZIndexOffset(0);
-      }
+      if (p.nama === selectedName) { marker.setZIndexOffset(1000); } 
+      else { marker.setZIndexOffset(0); }
 
       updateMarkerTooltip(marker, p, gpsOnline, kompAktif);
       seen[p.nama] = true;
@@ -450,11 +439,8 @@
       
       setTimeout(function() {
         if (marker.getTooltip() && marker.getTooltip().getElement()) {
-          if (p.nama === selectedName) {
-            marker.getTooltip().getElement().classList.add('tooltip-on-top');
-          } else {
-            marker.getTooltip().getElement().classList.remove('tooltip-on-top');
-          }
+          if (p.nama === selectedName) { marker.getTooltip().getElement().classList.add('tooltip-on-top'); } 
+          else { marker.getTooltip().getElement().classList.remove('tooltip-on-top'); }
         }
       }, 0);
     });
@@ -467,30 +453,21 @@
 
   function selectPerson(nama){
     selectedName = nama;
-    
     Object.keys(markerByName).forEach(function(key){
       var m = markerByName[key];
       if(m) {
         m.setZIndexOffset(0);
-        if (m.getTooltip() && m.getTooltip().getElement()) {
-          m.getTooltip().getElement().classList.remove('tooltip-on-top');
-        }
+        if (m.getTooltip() && m.getTooltip().getElement()) { m.getTooltip().getElement().classList.remove('tooltip-on-top'); }
       }
     });
 
     var marker = markerByName[nama];
     if (marker){
       marker.setZIndexOffset(1000); 
-      if (marker.getTooltip() && marker.getTooltip().getElement()) {
-        marker.getTooltip().getElement().classList.add('tooltip-on-top');
-      }
-      
+      if (marker.getTooltip() && marker.getTooltip().getElement()) { marker.getTooltip().getElement().classList.add('tooltip-on-top'); }
       map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 15), { duration: reduceMotion ? 0 : 1.1 });
     }
-    
-    document.querySelectorAll('.person').forEach(function(el){
-      el.classList.toggle('selected', el.dataset.nama === nama);
-    });
+    document.querySelectorAll('.person').forEach(function(el){ el.classList.toggle('selected', el.dataset.nama === nama); });
   }
 
   function isAktif(p){
@@ -509,13 +486,11 @@
     filtered.sort(function(a, b){
       var ai = isAktif(a) ? 1 : 0, bi = isAktif(b) ? 1 : 0;
       if (bi !== ai) return bi - ai; 
-
       if (ai === 1) { 
         var timeA = lastOnlineTime[a.nama] || 0;
         var timeB = lastOnlineTime[b.nama] || 0;
         if (timeB !== timeA) return timeB - timeA; 
       }
-
       return a.nama.localeCompare(b.nama); 
     });
 
@@ -556,12 +531,8 @@
             return '<div class="seg-kantor" style="left:' + s.toFixed(2) + '%;width:' + w.toFixed(2) + '%;opacity:' + opacity + '"></div>';
           }).join('');
         }
-
         jadwalLine = '<div class="pmeta">Jam aktif lapangan &amp; kantor &middot; 00:00\u201324:00</div>' +
-          '<div class="jadwalbar-gab">' +
-            '<div class="lane lane-lapangan">' + segLapangan + '</div>' +
-            '<div class="lane lane-kantor">' + segKantor + '</div>' +
-          '</div>';
+          '<div class="jadwalbar-gab"><div class="lane lane-lapangan">' + segLapangan + '</div><div class="lane lane-kantor">' + segKantor + '</div></div>';
       } else if (p.jadwalGps && p.jadwalGps.length) {
         var segs = p.jadwalGps.map(function(j){
           var s = pctFromIso(j.mulai), e = pctFromIso(j.selesai);
@@ -579,29 +550,17 @@
           var totalDet = aktif + idle;
           var pctAktif = totalDet > 0 ? (aktif / totalDet * 100) : 0;
           var pctIdle = 100 - pctAktif;
-          kompLine += '<div class="actbar"><div class="fill-active" style="width:' + pctAktif.toFixed(1) + '%"></div>' +
-            '<div class="fill-idle" style="width:' + pctIdle.toFixed(1) + '%"></div></div>';
+          kompLine += '<div class="actbar"><div class="fill-active" style="width:' + pctAktif.toFixed(1) + '%"></div><div class="fill-idle" style="width:' + pctIdle.toFixed(1) + '%"></div></div>';
         }
       }
 
-      var rowStyle = (animate && !reduceMotion)
-        ? 'animation-delay:' + Math.min(i * 35, 480) + 'ms'
-        : 'opacity:1;transform:none;animation:none';
-
-      var classNames = 'person' 
-        + (hasLoc ? ' clickable' : '') 
-        + (p.nama === selectedName ? ' selected' : '')
-        + (isNewArrival ? ' new-arrival' : '');
+      var rowStyle = (animate && !reduceMotion) ? 'animation-delay:' + Math.min(i * 35, 480) + 'ms' : 'opacity:1;transform:none;animation:none';
+      var classNames = 'person' + (hasLoc ? ' clickable' : '') + (p.nama === selectedName ? ' selected' : '') + (isNewArrival ? ' new-arrival' : '');
 
       return '<div class="' + classNames + '" data-nama="' + p.nama.replace(/"/g, '&quot;') + '" style="' + rowStyle + '">' +
-        '<div class="dot ' + dotCls + '"></div>' +
-        '<div class="pinfo">' +
-          '<div class="prow1"><span class="pname">' + p.nama + '</span>' +
-          '<span class="tag ' + t.cls + '">' + t.label + '</span></div>' +
-          gpsLine + jadwalLine + kompLine +
-        '</div></div>';
+        '<div class="dot ' + dotCls + '"></div><div class="pinfo"><div class="prow1"><span class="pname">' + p.nama + '</span>' +
+        '<span class="tag ' + t.cls + '">' + t.label + '</span></div>' + gpsLine + jadwalLine + kompLine + '</div></div>';
     }).join('');
-
     el.scrollTop = prevScroll;
   }
 
@@ -616,47 +575,33 @@
 
   var geocodeCache = {};
   var geocodeBusy = false;
-
   function geocodeKey(lat, lng){ return lat.toFixed(4) + ',' + lng.toFixed(4); }
-
   function reverseGeocode(lat, lng, callback){
     var key = geocodeKey(lat, lng);
     if (geocodeCache[key]){ callback(geocodeCache[key]); return; }
     var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng + '&zoom=17&addressdetails=1';
-    fetch(url)
-      .then(function(r){ return r.json(); })
-      .then(function(data){
+    fetch(url).then(function(r){ return r.json(); }).then(function(data){
         var a = data.address || {};
         var label = a.road || a.pedestrian || a.neighbourhood || a.suburb || a.village || null;
         if (label) geocodeCache[key] = label;
         callback(label);
-      })
-      .catch(function(){ callback(null); });
+      }).catch(function(){ callback(null); });
   }
 
   function isiAlamatOtomatis(people){
     if (geocodeBusy) return;
-    var antrian = people.filter(function(p){
-      return p.gps && p.gps.online && p.gps.lat != null &&
-        (!p.gps.alamat || p.gps.alamat === 'Unknown');
-    });
+    var antrian = people.filter(function(p){ return p.gps && p.gps.online && p.gps.lat != null && (!p.gps.alamat || p.gps.alamat === 'Unknown'); });
     if (!antrian.length) return;
     geocodeBusy = true;
-
     function next(){
       if (!antrian.length){ geocodeBusy = false; return; }
       var p = antrian.shift();
       reverseGeocode(p.gps.lat, p.gps.lng, function(label){
         if (label){
-          p.gps.alamat = label;
-          p.gps.isAutoGeocoded = true; 
-
+          p.gps.alamat = label; p.gps.isAutoGeocoded = true; 
           renderRoster(false);
           var marker = markerByName[p.nama];
-          
-          if (marker) {
-             updateMarkerTooltip(marker, p, true, false);
-          }
+          if (marker) { updateMarkerTooltip(marker, p, true, false); }
         }
         setTimeout(next, 1100); 
       });
@@ -665,7 +610,6 @@
   }
 
   var SEBULAN_MS = 30 * 24 * 60 * 60 * 1000;
-
   function aktivitasTerakhir(p){
     var t1 = p.gps && p.gps.waktu ? new Date(p.gps.waktu.replace(' ', 'T')) : null;
     var t2 = p.komputer && p.komputer.terakhirAktif ? new Date(p.komputer.terakhirAktif) : null;
@@ -673,23 +617,19 @@
     if (!valid.length) return null;
     return new Date(Math.max.apply(null, valid.map(function(d){ return d.getTime(); })));
   }
-
   function masihRelevan(p){
     var last = aktivitasTerakhir(p);
     if (!last) return false; 
     return (Date.now() - last.getTime()) <= SEBULAN_MS;
   }
 
-  // ============ LOGIKA SLIDESHOW & JEDA ============
   function playSlideshowStep() {
     if (isSlideshowStopped) return;
-
     var activeMapUsers = allPeople.filter(function(p){
       var gpsOnline = !!(p.gps && p.gps.online && p.gps.lat != null);
       var kompAktif = !!(p.komputer && p.komputer.aktifDetik > 0);
       return gpsOnline || kompAktif;
     });
-
     if (!activeMapUsers.length) return;
 
     activeMapUsers.sort(function(a, b){
@@ -701,9 +641,7 @@
 
     slideshowIndex = slideshowIndex % activeMapUsers.length;
     var targetPerson = activeMapUsers[slideshowIndex];
-
     selectPerson(targetPerson.nama);
-
     slideshowIndex++;
   }
 
@@ -711,71 +649,79 @@
     isSlideshowStopped = false;
     if (slideshowTimer) clearInterval(slideshowTimer);
     if (resumeTimer) clearTimeout(resumeTimer);
-    
     slideshowTimer = setInterval(playSlideshowStep, SLIDESHOW_SPEED_MS);
   }
 
-  // UPDATE: Fungsi pause yang akan mereset hitungan 1 menit
   function pauseSlideshow() {
     isSlideshowStopped = true;
     if (slideshowTimer) clearInterval(slideshowTimer);
     if (resumeTimer) clearTimeout(resumeTimer);
-
-    // Setel hitung mundur 1 menit (60 detik)
     resumeTimer = setTimeout(function() {
       startSlideshow();
-      playSlideshowStep(); // Langsung pindah ke target berikutnya
+      playSlideshowStep(); 
     }, RESUME_DELAY_MS);
   }
 
-  // ============ MAIN FETCH ============
+  function prosesDataUI(json, isFirst) {
+    allPeople = (json.data || []).filter(masihRelevan);
+    allPeople.forEach(function(p){
+      var currentActive = isAktif(p);
+      if (isFirst) {
+        wasActiveStatus[p.nama] = currentActive;
+        lastOnlineTime[p.nama] = 0; 
+      } else {
+        if (currentActive && !wasActiveStatus[p.nama]) {
+          lastOnlineTime[p.nama] = Date.now();
+          highlightQueue[p.nama] = true; 
+        }
+        wasActiveStatus[p.nama] = currentActive;
+      }
+    });
+    document.getElementById('updatedAt').textContent = 'diperbarui ' + new Date(json.updatedAt).toLocaleTimeString('id-ID');
+    renderStats(allPeople, isFirst);
+    renderMap(allPeople, isFirst);
+    renderRoster(isFirst);
+    isiAlamatOtomatis(allPeople);
+  }
+
+  // ============ FUNGSI MUAT UTAMA (MENGGUNAKAN LOCAL STORAGE MEMORY) ============
   function muat(){
     var btn = document.getElementById('refreshBtn');
     btn.classList.add('spinning');
-    if (!hasLoadedOnce){
-      document.getElementById('roster').innerHTML = '<div class="state">Memuat data monitoring…</div>';
+
+    // 1. TAMPILKAN DARI MEMORI DULU BIAR LANGSUNG KELUAR
+    if (!hasLoadedOnce) {
+      var savedData = localStorage.getItem(CACHE_KEY);
+      if (savedData) {
+        try {
+          var jsonCache = JSON.parse(savedData);
+          prosesDataUI(jsonCache, true);
+          document.getElementById('updatedAt').textContent = 'menyinkronkan data terbaru...';
+        } catch(e) {}
+      } else {
+        document.getElementById('roster').innerHTML = '<div class="state">Memuat data monitoring…</div>';
+      }
     }
+
+    // 2. DIAM-DIAM AMBIL DATA TERBARU DARI GOOGLE
     fetch(API_URL)
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function(json){
+        // Update Memori untuk dimuat besok/nanti
+        localStorage.setItem(CACHE_KEY, JSON.stringify(json));
+
         var isFirst = !hasLoadedOnce;
         hasLoadedOnce = true;
-        allPeople = (json.data || []).filter(masihRelevan);
         
-        allPeople.forEach(function(p){
-          var currentActive = isAktif(p);
-          if (isFirst) {
-            wasActiveStatus[p.nama] = currentActive;
-            lastOnlineTime[p.nama] = 0; 
-          } else {
-            if (currentActive && !wasActiveStatus[p.nama]) {
-              lastOnlineTime[p.nama] = Date.now();
-              highlightQueue[p.nama] = true; 
-            }
-            wasActiveStatus[p.nama] = currentActive;
-          }
-        });
+        prosesDataUI(json, isFirst);
 
-        document.getElementById('updatedAt').textContent =
-          'diperbarui ' + new Date(json.updatedAt).toLocaleTimeString('id-ID');
-        renderStats(allPeople, isFirst);
-        renderMap(allPeople, isFirst);
-        renderRoster(isFirst);
-        isiAlamatOtomatis(allPeople);
-
-        // Jalankan awal
         if (isFirst && !isSlideshowStopped) {
-          setTimeout(function() {
-            startSlideshow();
-            playSlideshowStep(); 
-          }, 2000); 
+          setTimeout(function() { startSlideshow(); playSlideshowStep(); }, 2000); 
         }
       })
       .catch(function(err){
         if (!hasLoadedOnce){
-          document.getElementById('roster').innerHTML =
-            '<div class="state"><b>Gagal memuat data</b>' + err.message +
-            '. Pastikan API_URL di file ini benar dan Web App sudah di-deploy dengan akses "Anyone".</div>';
+          document.getElementById('roster').innerHTML = '<div class="state"><b>Gagal memuat data</b>' + err.message + '.</div>';
           document.getElementById('updatedAt').textContent = 'gagal memuat';
         } else {
           document.getElementById('updatedAt').textContent = 'gagal memperbarui (' + err.message + ')';
@@ -790,7 +736,6 @@
     renderRoster(true);
   });
   
-  // EVENT LISTENER: Panggil pauseSlideshow alih-alih memberhentikan total
   document.getElementById('roster').addEventListener('click', function(e){
     var row = e.target.closest('.person.clickable');
     if (row) {
@@ -809,12 +754,8 @@
     });
   });
 
-  window.addEventListener('load', function(){
-    positionSegHighlight(document.querySelector('.seg-btn[data-active="true"]'));
-  });
-  window.addEventListener('resize', function(){
-    positionSegHighlight(document.querySelector('.seg-btn[data-active="true"]'));
-  });
+  window.addEventListener('load', function(){ positionSegHighlight(document.querySelector('.seg-btn[data-active="true"]')); });
+  window.addEventListener('resize', function(){ positionSegHighlight(document.querySelector('.seg-btn[data-active="true"]')); });
 
   muat();
   setInterval(muat, REFRESH_INTERVAL_MS);
