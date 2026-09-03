@@ -584,7 +584,7 @@
         ? ((p.sumber === 'lapangan+kantor') ? '#5A78FF' : '#34E27E')
         : '#4C5776';
       routeLayer = L.polyline(p.gps.jalur, {
-        color: warnaRute, weight: 3, opacity: lagiOnline ? 0.85 : 0.6, lineCap: 'round',
+        color: warnaRute, weight: 3, opacity: lagiOnline ? 0.85 : 0.75, lineCap: 'round',
         className: reduceMotion ? '' : 'route-flow'
       }).addTo(map);
       var routeEl = routeLayer.getElement();
