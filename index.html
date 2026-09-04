@@ -375,6 +375,51 @@
     return (detik / 86400) * 100;
   }
 
+  var JAM_KERJA_MULAI = 7;   // batas deteksi hotspot: cuma jam kerja, biar rumah pas
+  var JAM_KERJA_SELESAI = 18; // tidur malam gak ke-anggep hotspot raksasa
+
+  function jarakMeter(lat1, lng1, lat2, lng2){
+    var R = 6371000;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  // Deteksi kelompok titik yang rapat jarak (<= radiusMeter) DAN rapat waktu
+  // (durasi >= minDetik) - dipakai sebagai penanda "nongkrong lama di sini",
+  // tanpa peduli lokasinya proyek terdaftar atau bukan.
+  function deteksiTitikNongkrong(jalurMentah, radiusMeter, minDetik){
+    var titik = (jalurMentah || [])
+      .map(function(pt){ return { lat: pt[0], lng: pt[1], time: new Date(pt[2]) }; })
+      .filter(function(t){
+        var jam = t.time.getHours();
+        return jam >= JAM_KERJA_MULAI && jam < JAM_KERJA_SELESAI;
+      })
+      .sort(function(a, b){ return a.time - b.time; });
+
+    var hasil = [];
+    var i = 0;
+    while (i < titik.length){
+      var j = i + 1;
+      while (j < titik.length && jarakMeter(titik[i].lat, titik[i].lng, titik[j].lat, titik[j].lng) <= radiusMeter){
+        j++;
+      }
+      var durasi = (titik[j - 1].time - titik[i].time) / 1000;
+      if (durasi >= minDetik){
+        var n = j - i, sumLat = 0, sumLng = 0;
+        for (var k = i; k < j; k++){ sumLat += titik[k].lat; sumLng += titik[k].lng; }
+        hasil.push({ lat: sumLat / n, lng: sumLng / n, durasiDetik: durasi });
+        i = j;
+      } else {
+        i++;
+      }
+    }
+    return hasil;
+  }
+
   function totalDetikSegmen(segmen, kecualikanNama){
     var total = 0;
     (segmen || []).forEach(function(s){
@@ -556,6 +601,7 @@
   }
 
   var routeLayer = null;
+  var hotspotLayers = [];
 
   function selectPerson(nama){
     selectedName = nama;
@@ -575,6 +621,8 @@
     document.querySelectorAll('.person').forEach(function(el){ el.classList.toggle('selected', el.dataset.nama === nama); });
 
     if (routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
+    hotspotLayers.forEach(function(l){ map.removeLayer(l); });
+    hotspotLayers = [];
     var p = allPeople.find(function(x){ return x.nama === nama; });
     
     if (!p) return; // Jika p null, stop disini (misal saat reset)
@@ -611,6 +659,23 @@
     } else if (marker){
       map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 15), { duration: reduceMotion ? 0 : 1.1 });
     }
+
+    // Blob amber di titik-titik "nongkrong lama" (>=1 jam, jam kerja) - dari
+    // analisis GPS mentah, jalan baik di lokasi proyek terdaftar maupun bukan.
+    if (ruteHariIni && p.gps && p.gps.jalur && p.gps.jalur.length){
+      var titikNongkrong = deteksiTitikNongkrong(p.gps.jalur, 100, 3600);
+      titikNongkrong.forEach(function(s){
+        var t = Math.min(s.durasiDetik / (8 * 3600), 1); // skala penuh di 8 jam+
+        var radius = 40 + t * 160;
+        var fillOpacity = 0.22 + t * 0.45;
+        var blob = L.circle([s.lat, s.lng], {
+          radius: radius, color: '#FFC24B', weight: 1, opacity: 0.4,
+          fillColor: '#FFC24B', fillOpacity: fillOpacity
+        }).addTo(map);
+        blob.bringToBack();
+        hotspotLayers.push(blob);
+      });
+    }
   }
 
   // FUNGSI BARU: Menampilkan zoom-out keseluruhan di peta
@@ -633,6 +698,8 @@
     });
 
     if (routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
+    hotspotLayers.forEach(function(l){ map.removeLayer(l); });
+    hotspotLayers = [];
 
     var activeBounds = [];
     activeMapUsers.forEach(function(p){
