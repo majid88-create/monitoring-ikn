@@ -10,122 +10,52 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   :root{
-    --void: #0A0F1D;
-    --surface: #121A2E;
-    --surface-2: #17203A;
-    --line: rgba(148,171,255,0.14);
-    --ink: #E9EDFB;
-    --ink-dim: #8894B4;
-    --teal: #46E0C6;
-    --teal-dim: rgba(70,224,198,0.14);
-    --green: #34E27E;
-    --amber: #FFC24B;
-    --red: #FF4B4B;
-    --slate: #4C5776;
-    --radius-lg: 22px;
-    --radius-md: 14px;
-    --font-display: 'Space Grotesk', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
+    --void: #0A0F1D; --surface: #121A2E; --surface-2: #17203A; --line: rgba(148,171,255,0.14);
+    --ink: #E9EDFB; --ink-dim: #8894B4; --teal: #46E0C6; --teal-dim: rgba(70,224,198,0.14);
+    --green: #34E27E; --amber: #FFC24B; --red: #FF4B4B; --slate: #4C5776;
+    --radius-lg: 22px; --radius-md: 14px;
+    --font-display: 'Space Grotesk', sans-serif; --font-mono: 'JetBrains Mono', monospace;
   }
-  *{box-sizing:border-box;}
-  html,body{height:100%;}
-  body{
-    margin:0; background:var(--void); color:var(--ink);
-    font-family:var(--font-display);
-    -webkit-font-smoothing:antialiased;
-    background-image:
-      radial-gradient(1100px 500px at 15% -10%, rgba(70,224,198,0.10), transparent 60%),
-      radial-gradient(900px 500px at 100% 0%, rgba(90,120,255,0.08), transparent 55%);
-    background-attachment:fixed;
-  }
-
+  *{box-sizing:border-box;} html,body{height:100%;}
+  body{ margin:0; background:var(--void); color:var(--ink); font-family:var(--font-display); -webkit-font-smoothing:antialiased; background-image: radial-gradient(1100px 500px at 15% -10%, rgba(70,224,198,0.10), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(90,120,255,0.08), transparent 55%); background-attachment:fixed; }
   ::selection{ background:var(--teal); color:#04120F; }
 
-  /* ---------- Topbar ---------- */
-  .topbar{
-    position:sticky; top:0; z-index:30;
-    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
-    padding:18px 26px; border-bottom:1px solid var(--line);
-    background:rgba(10,15,29,0.72); backdrop-filter:blur(14px);
-  }
-  .live{
-    display:flex; align-items:center; gap:8px;
-    font-family:var(--font-mono); font-size:11.5px; letter-spacing:0.04em;
-    color:var(--green); border:1px solid rgba(52,226,126,0.3);
-    background:rgba(52,226,126,0.08); padding:5px 10px; border-radius:999px;
-  }
-  .live .bulb{ width:7px; height:7px; border-radius:50%; background:var(--green);
-    box-shadow:0 0 8px var(--green); animation:blink 1.8s ease-in-out infinite; }
+  /* ---------- Topbar & Stats ---------- */
+  .topbar{ position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:18px; flex-wrap:wrap; padding:18px 26px; border-bottom:1px solid var(--line); background:rgba(10,15,29,0.72); backdrop-filter:blur(14px); }
+  .live{ display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:11.5px; letter-spacing:0.04em; color:var(--green); border:1px solid rgba(52,226,126,0.3); background:rgba(52,226,126,0.08); padding:5px 10px; border-radius:999px; }
+  .live .bulb{ width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 1.8s ease-in-out infinite; }
   @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
-
   .topbar h1{ font-size:19px; font-weight:700; margin:0; letter-spacing:-0.01em; }
   .topbar .updated{ font-family:var(--font-mono); font-size:12px; color:var(--ink-dim); }
   .spacer{ flex:1; }
-
-  .search{
-    display:flex; align-items:center; gap:8px;
-    border:1px solid var(--line); background:var(--surface);
-    border-radius:12px; padding:9px 14px; min-width:220px;
-  }
-  .search input{
-    border:none; outline:none; background:transparent; color:var(--ink);
-    font-family:var(--font-display); font-size:14px; width:100%;
-  }
+  .search{ display:flex; align-items:center; gap:8px; border:1px solid var(--line); background:var(--surface); border-radius:12px; padding:9px 14px; min-width:220px; }
+  .search input{ border:none; outline:none; background:transparent; color:var(--ink); font-family:var(--font-display); font-size:14px; width:100%; }
   .search input::placeholder{ color:var(--ink-dim); }
   .search svg{ flex-shrink:0; opacity:0.6; }
-
-  .icon-btn{
-    border:1px solid var(--line); background:var(--surface); color:var(--ink);
-    width:38px; height:38px; border-radius:12px; display:flex; align-items:center;
-    justify-content:center; cursor:pointer; transition:background .15s, transform .5s ease;
-  }
+  .icon-btn{ border:1px solid var(--line); background:var(--surface); color:var(--ink); width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .15s, transform .5s ease; }
   .icon-btn:hover{ background:var(--surface-2); }
   .icon-btn.spinning svg{ animation:spin 0.9s linear infinite; }
   @keyframes spin{ to{ transform:rotate(360deg); } }
-  .icon-btn:focus-visible, .search:focus-within, .seg-btn:focus-visible, input:focus-visible{
-    outline:2px solid var(--teal); outline-offset:2px;
-  }
+  .icon-btn:focus-visible, .search:focus-within, .seg-btn:focus-visible, input:focus-visible{ outline:2px solid var(--teal); outline-offset:2px; }
 
-  /* ---------- Stat strip ---------- */
   .stats{ display:flex; gap:14px; padding:16px 26px 0; flex-wrap:wrap; }
-  .stat{
-    flex:1; min-width:150px; background:var(--surface); border:1px solid var(--line);
-    border-radius:var(--radius-md); padding:14px 18px;
-  }
+  .stat{ flex:1; min-width:150px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-md); padding:14px 18px; }
   .stat .num{ font-family:var(--font-mono); font-size:26px; font-weight:600; color:var(--teal); }
   .stat .lbl{ font-size:12.5px; color:var(--ink-dim); margin-top:2px; }
 
-  /* ---------- Layout ---------- */
-  .layout{
-    display:grid; grid-template-columns: 1.15fr 1fr; gap:16px;
-    padding:16px 26px 40px; align-items:start;
-  }
+  /* ---------- Layout & Map ---------- */
+  .layout{ display:grid; grid-template-columns: 1.15fr 1fr; gap:16px; padding:16px 26px 40px; align-items:start; }
   @media (max-width: 920px){ .layout{ grid-template-columns:1fr; } }
-
-  .panel{
-    background:var(--surface); border:1px solid var(--line);
-    border-radius:var(--radius-lg); overflow:hidden;
-  }
+  .panel{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; }
   .map-wrap{ position:relative; }
   #map{ height:560px; width:100%; background:var(--void); }
   #map .leaflet-tile-pane{ filter:invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9) saturate(0.75); }
   
-  /* CSS Marker Label */
-  .marker-label{
-    background:rgba(18,26,46,0.88) !important; border:1px solid var(--line) !important;
-    color:var(--ink) !important; font-family:var(--font-display);
-    padding:6px 12px !important; border-radius:10px !important;
-    box-shadow:0 4px 14px rgba(0,0,0,0.4) !important; backdrop-filter:blur(6px);
-    line-height:1.2 !important;
-  }
+  .marker-label{ background:rgba(18,26,46,0.88) !important; border:1px solid var(--line) !important; color:var(--ink) !important; font-family:var(--font-display); padding:6px 12px !important; border-radius:10px !important; box-shadow:0 4px 14px rgba(0,0,0,0.4) !important; backdrop-filter:blur(6px); line-height:1.2 !important; }
   .tooltip-on-top { z-index: 9999 !important; }
   .marker-label::before{ display:none !important; }
   .marker-name { font-size:12.5px; font-weight:700; }
-  .marker-loc {
-    font-size:9.5px; font-weight:500; color:var(--teal); margin-top:3px;
-    font-family:var(--font-mono); max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-  
+  .marker-loc { font-size:9.5px; font-weight:500; color:var(--teal); margin-top:3px; font-family:var(--font-mono); max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .leaflet-control-attribution{ background:rgba(10,15,29,0.7) !important; color:var(--ink-dim) !important; }
   .leaflet-control-attribution a{ color:var(--teal) !important; }
 
@@ -135,7 +65,6 @@
   .marker-dot.online{ background:var(--green); box-shadow:0 0 12px var(--green); }
   .marker-dot.komp-online{ background:#5A78FF; box-shadow:0 0 12px #5A78FF; }
   .marker-dot.selected{ outline:3px solid var(--teal); outline-offset:2px; }
-  
   .pulse-ring{ position:absolute; inset:-9px; border-radius:50%; border:2px solid var(--green); animation:pulse 2.4s ease-out infinite; }
   .pulse-ring.komp-pulse{ border-color:#5A78FF; }
 
@@ -143,61 +72,28 @@
   .route-flow{ stroke-dasharray: 10 14; animation: routeFlow 0.9s linear infinite; }
   @keyframes routeFlow{ to{ stroke-dashoffset: -48; } }
 
-  @keyframes pulseBlob {
-    0% { filter: drop-shadow(0 0 2px rgba(255,75,75,0.4)); transform: scale(0.98); }
-    50% { filter: drop-shadow(0 0 12px rgba(255,75,75,0.8)); transform: scale(1.02); }
-    100% { filter: drop-shadow(0 0 2px rgba(255,75,75,0.4)); transform: scale(0.98); }
-  }
+  @keyframes pulseBlob { 0% { filter: drop-shadow(0 0 2px rgba(255,75,75,0.4)); transform: scale(0.98); } 50% { filter: drop-shadow(0 0 12px rgba(255,75,75,0.8)); transform: scale(1.02); } 100% { filter: drop-shadow(0 0 2px rgba(255,75,75,0.4)); transform: scale(0.98); } }
   .blob-danger { animation: pulseBlob 2.5s infinite; transform-origin: center; }
 
-  /* ---------- Segmented filter ---------- */
+  /* ---------- Segmented & Roster ---------- */
   .seg-row{ padding:16px 16px 0; }
-  .segmented{
-    position:relative; display:flex; background:var(--void);
-    border:1px solid var(--line); border-radius:999px; padding:4px;
-  }
-  .seg-highlight{
-    position:absolute; top:4px; bottom:4px; left:4px; width:0;
-    background:var(--teal); border-radius:999px; z-index:0;
-    transition:left .35s cubic-bezier(.65,0,.35,1), width .35s cubic-bezier(.65,0,.35,1);
-  }
-  .seg-btn{
-    position:relative; z-index:1; flex:1; border:none; background:transparent;
-    color:var(--ink-dim); font-family:var(--font-display); font-weight:600;
-    font-size:13px; padding:9px 6px; border-radius:999px; cursor:pointer;
-    transition:color .25s; display:flex; align-items:center; justify-content:center;
-  }
+  .segmented{ position:relative; display:flex; background:var(--void); border:1px solid var(--line); border-radius:999px; padding:4px; }
+  .seg-highlight{ position:absolute; top:4px; bottom:4px; left:4px; width:0; background:var(--teal); border-radius:999px; z-index:0; transition:left .35s cubic-bezier(.65,0,.35,1), width .35s cubic-bezier(.65,0,.35,1); }
+  .seg-btn{ position:relative; z-index:1; flex:1; border:none; background:transparent; color:var(--ink-dim); font-family:var(--font-display); font-weight:600; font-size:13px; padding:9px 6px; border-radius:999px; cursor:pointer; transition:color .25s; display:flex; align-items:center; justify-content:center; }
   .seg-btn[data-active="true"]{ color:#04120F; }
-
-  .seg-btn .badge {
-    display: inline-flex; align-items: center; justify-content: center;
-    background: rgba(70,224,198,0.15); color: var(--teal);
-    border: 1px solid rgba(70,224,198,0.3);
-    font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
-    height: 18px; min-width: 18px; border-radius: 999px; padding: 0 5px; margin-left: 6px;
-    transform: translateY(-1px); transition: all 0.2s ease;
-  }
+  .seg-btn .badge { display: inline-flex; align-items: center; justify-content: center; background: rgba(70,224,198,0.15); color: var(--teal); border: 1px solid rgba(70,224,198,0.3); font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; height: 18px; min-width: 18px; border-radius: 999px; padding: 0 5px; margin-left: 6px; transform: translateY(-1px); transition: all 0.2s ease; }
   .seg-btn[data-active="true"] .badge { background: var(--void); color: var(--teal); border-color: transparent; }
   .seg-btn .badge.hidden { display: none; }
 
-  /* ---------- Roster ---------- */
   .roster{ padding:8px 10px 14px; max-height:640px; overflow-y:auto; }
   .roster::-webkit-scrollbar{ width:8px; }
   .roster::-webkit-scrollbar-thumb{ background:var(--surface-2); border-radius:8px; }
-
-  .person{
-    display:flex; align-items:flex-start; gap:12px; padding:13px 12px;
-    border-radius:14px; cursor:default; border:1px solid transparent;
-    opacity:0; transform:translateY(8px); animation:riseIn .45s ease forwards;
-  }
+  .person{ display:flex; align-items:flex-start; gap:12px; padding:13px 12px; border-radius:14px; cursor:default; border:1px solid transparent; opacity:0; transform:translateY(8px); animation:riseIn .45s ease forwards; }
   .person.clickable{ cursor:pointer; }
   .person.clickable:hover{ background:var(--surface-2); }
   .person.selected{ border-color:var(--teal); background:var(--teal-dim); }
   
-  @keyframes highlightNew {
-    0% { background: rgba(52, 226, 126, 0.25); border-color: rgba(52, 226, 126, 0.8); }
-    100% { background: transparent; border-color: transparent; }
-  }
+  @keyframes highlightNew { 0% { background: rgba(52, 226, 126, 0.25); border-color: rgba(52, 226, 126, 0.8); } 100% { background: transparent; border-color: transparent; } }
   .person.new-arrival { animation: riseIn .45s ease forwards, highlightNew 4s ease-out forwards; }
   @keyframes riseIn{ to{ opacity:1; transform:translateY(0); } }
 
@@ -222,17 +118,9 @@
   .actbar{ display:flex; height:5px; border-radius:4px; overflow:hidden; margin-top:6px; background:var(--void); }
   .actbar .fill-active{ background:var(--green); }
   .actbar .fill-idle{ background:var(--slate); }
-
-  .jadwalbar{
-    position:relative; height:6px; border-radius:4px; margin-top:6px; overflow:hidden;
-    background: repeating-linear-gradient(to right, transparent, transparent calc(25% - 1px), rgba(255,255,255,0.10) calc(25% - 1px), rgba(255,255,255,0.10) 25%), var(--void);
-  }
+  .jadwalbar{ position:relative; height:6px; border-radius:4px; margin-top:6px; overflow:hidden; background: repeating-linear-gradient(to right, transparent, transparent calc(25% - 1px), rgba(255,255,255,0.10) calc(25% - 1px), rgba(255,255,255,0.10) 25%), var(--void); }
   .jadwalbar-seg{ position:absolute; top:0; bottom:0; background:var(--green); }
-
-  .jadwalbar-gab{
-    position:relative; border-radius:4px; margin-top:6px; overflow:hidden; height:13px;
-    background: repeating-linear-gradient(to right, transparent, transparent calc(25% - 1px), rgba(255,255,255,0.10) calc(25% - 1px), rgba(255,255,255,0.10) 25%), var(--void);
-  }
+  .jadwalbar-gab{ position:relative; border-radius:4px; margin-top:6px; overflow:hidden; height:13px; background: repeating-linear-gradient(to right, transparent, transparent calc(25% - 1px), rgba(255,255,255,0.10) calc(25% - 1px), rgba(255,255,255,0.10) 25%), var(--void); }
   .jadwalbar-gab .lane{ position:absolute; left:0; right:0; height:5px; }
   .jadwalbar-gab .lane-lapangan{ top:0; }
   .jadwalbar-gab .lane-kantor{ bottom:0; }
@@ -257,26 +145,16 @@
   <h1>Monitoring Gabungan</h1>
   <span class="updated mono" id="updatedAt">memuat…</span>
   <div class="spacer"></div>
-  <div class="search">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input id="searchInput" type="text" placeholder="Cari nama…">
-  </div>
-  <button class="icon-btn" id="refreshBtn" title="Refresh">
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-  </button>
+  <div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="searchInput" type="text" placeholder="Cari nama…"></div>
+  <button class="icon-btn" id="refreshBtn" title="Refresh"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
 </div>
-
 <div class="stats" id="stats">
   <div class="stat"><div class="num mono" id="statOnline">0</div><div class="lbl">Lapangan online</div></div>
   <div class="stat"><div class="num mono" id="statKantor">0</div><div class="lbl">Aktif di komputer</div></div>
   <div class="stat"><div class="num mono" id="statTotal">0</div><div class="lbl">Total personil</div></div>
 </div>
-
 <div class="layout">
-  <div class="panel map-wrap">
-    <div id="map"></div>
-  </div>
-
+  <div class="panel map-wrap"><div id="map"></div></div>
   <div class="panel">
     <div class="seg-row">
       <div class="segmented" id="segmented">
@@ -286,113 +164,62 @@
         <button class="seg-btn" data-filter="lapangan+kantor">Perencana <span class="badge hidden" id="badge-gabungan">0</span></button>
       </div>
     </div>
-    <div class="roster" id="roster">
-      <div class="state">Memuat data monitoring…</div>
-    </div>
+    <div class="roster" id="roster"><div class="state">Memuat data monitoring…</div></div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
-  // ============ KONFIGURASI ============
   var API_URL = "https://script.google.com/macros/s/AKfycbyMOL-XIedv67N33lFYKqEUBGdrVZBKXV0t5IgRLRwmZYuvwOo0hzLeAaF7riepdIg/exec";
   var REFRESH_INTERVAL_MS = 60000;
-  var KANTOR_LAT = -7.3233465;
-  var KANTOR_LNG = 112.7435520;
-  var CACHE_KEY = "ikn_data_cache_v1"; 
+  var KANTOR_LAT = -7.3233465, KANTOR_LNG = 112.7435520, CACHE_KEY = "ikn_data_cache_v1"; 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var map = L.map('map', { zoomControl: true }).setView([-7.30, 112.75], 12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-    maxZoom: 19
-  }).addTo(map);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors', maxZoom: 19 }).addTo(map);
 
   var isProgrammaticMove = false;
   map.on('click zoomstart dragstart', function(){ if (isProgrammaticMove) return; pauseSlideshow(); });
 
-  var markerByName = {};
-  var allPeople = [];
-  var activeFilter = 'semua';
-  var searchTerm = '';
-  var selectedName = null;
-  var hasLoadedOnce = false;
-
-  var wasActiveStatus = {}; 
-  var lastOnlineTime = {};  
-  var highlightQueue = {};  
-  var globalHotspotLayers = []; 
-
-  var slideshowTimer = null, resumeTimer = null, slideshowIndex = 0;
-  var isSlideshowStopped = false;
-  var SLIDESHOW_SPEED_MS = 7000;
-  var FULL_VIEW_DELAY_MS = 10000;
-  var RESUME_DELAY_MS = 60000;
+  var markerByName = {}, allPeople = [], activeFilter = 'semua', searchTerm = '', selectedName = null, hasLoadedOnce = false;
+  var wasActiveStatus = {}, lastOnlineTime = {}, highlightQueue = {}, globalHotspotLayers = []; 
+  var slideshowTimer = null, resumeTimer = null, slideshowIndex = 0, isSlideshowStopped = false;
+  var SLIDESHOW_SPEED_MS = 7000, FULL_VIEW_DELAY_MS = 10000, RESUME_DELAY_MS = 60000;
 
   function jarakMeter(lat1, lng1, lat2, lng2) {
     var R = 6371000, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
     var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
-
   function formatJam(detik){
     if (detik == null || isNaN(detik)) return '–';
     var jam = Math.floor(detik / 3600), menit = Math.round((detik % 3600) / 60);
     return jam + 'j ' + menit + 'm';
   }
-
-  function pctFromIso(iso){
-    var m = iso && iso.match(/T(\d{2}):(\d{2}):(\d{2})/); if (!m) return 0;
-    var detik = (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]); return (detik / 86400) * 100;
-  }
-
+  function pctFromIso(iso){ var m = iso && iso.match(/T(\d{2}):(\d{2}):(\d{2})/); if (!m) return 0; var detik = (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]); return (detik / 86400) * 100; }
   function totalDetikSegmen(segmen, kecualikanNama){
-    var total = 0;
-    (segmen || []).forEach(function(s){
-      if (kecualikanNama && kecualikanNama.indexOf(s.nama) !== -1) return;
-      var diff = (new Date(s.selesai) - new Date(s.mulai)) / 1000; if (diff > 0) total += diff;
-    }); return total;
+    var total = 0; (segmen || []).forEach(function(s){ if (kecualikanNama && kecualikanNama.indexOf(s.nama) !== -1) return; var diff = (new Date(s.selesai) - new Date(s.mulai)) / 1000; if (diff > 0) total += diff; }); return total;
   }
-
-  function tagInfo(sumber){
-    if (sumber === 'kantor') return { label: 'Kantor', cls: 'kantor' };
-    if (sumber === 'lapangan+kantor') return { label: 'Perencana', cls: 'gab' };
-    return { label: 'Pengawas', cls: '' };
-  }
-
+  function tagInfo(sumber){ if (sumber === 'kantor') return { label: 'Kantor', cls: 'kantor' }; if (sumber === 'lapangan+kantor') return { label: 'Perencana', cls: 'gab' }; return { label: 'Pengawas', cls: '' }; }
   function makeIcon(gpsOnline, kompAktif, sumber){
     if (kompAktif && !gpsOnline) return L.divIcon({ html: '<span class="marker-dot komp-online"><span class="pulse-ring komp-pulse"></span></span>', className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8] });
     if (!gpsOnline) return L.divIcon({ html: '<span class="marker-dot offline"></span>', className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8] });
-    var perencana = (sumber === 'lapangan+kantor' || sumber === 'kantor');
-    var dotCls = perencana ? 'komp-online' : 'online', pulseCls = perencana ? 'komp-pulse' : '';
+    var perencana = (sumber === 'lapangan+kantor' || sumber === 'kantor'), dotCls = perencana ? 'komp-online' : 'online', pulseCls = perencana ? 'komp-pulse' : '';
     return L.divIcon({ html: '<span class="marker-dot ' + dotCls + '"><span class="pulse-ring ' + pulseCls + '"></span></span>', className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8] });
   }
-
   function animateCount(el, to){
     if (reduceMotion){ el.textContent = to; return; }
-    var t0 = null, dur = 700;
-    function step(ts){
-      if (!t0) t0 = ts; var p = Math.min((ts - t0) / dur, 1); el.textContent = Math.round(p * to);
-      if (p < 1) requestAnimationFrame(step);
-    } requestAnimationFrame(step);
+    var t0 = null, dur = 700; function step(ts){ if (!t0) t0 = ts; var p = Math.min((ts - t0) / dur, 1); el.textContent = Math.round(p * to); if (p < 1) requestAnimationFrame(step); } requestAnimationFrame(step);
   }
-
   function isAktif(p){ return !!(p.gps && p.gps.online) || !!(p.komputer && p.komputer.aktifDetik > 0); }
 
   function renderStats(people, animate){
-    var online = people.filter(function(p){ return p.gps && p.gps.online; }).length;
-    var kantor = people.filter(function(p){ return p.komputer; }).length;
+    var online = people.filter(function(p){ return p.gps && p.gps.online; }).length, kantor = people.filter(function(p){ return p.komputer; }).length;
     var totals = { statOnline: online, statKantor: kantor, statTotal: people.length };
-    
     Object.keys(totals).forEach(function(id){ var el = document.getElementById(id); if (animate) animateCount(el, totals[id]); else el.textContent = totals[id]; });
 
     var activeSemua = 0, activeLapangan = 0, activeKantor = 0, activeGabungan = 0;
-    people.forEach(function(p){
-      if (isAktif(p)) {
-        activeSemua++;
-        if (p.sumber === 'lapangan+kantor') activeGabungan++; else if (p.sumber === 'kantor') activeKantor++; else activeLapangan++; 
-      }
-    });
+    people.forEach(function(p){ if (isAktif(p)) { activeSemua++; if (p.sumber === 'lapangan+kantor') activeGabungan++; else if (p.sumber === 'kantor') activeKantor++; else activeLapangan++; } });
 
     function updateBadge(id, count) { var el = document.getElementById(id); if (el) { el.textContent = count; if (count > 0) el.classList.remove('hidden'); else el.classList.add('hidden'); } }
     updateBadge('badge-semua', activeSemua); updateBadge('badge-lapangan', activeLapangan); updateBadge('badge-kantor', activeKantor); updateBadge('badge-gabungan', activeGabungan);
@@ -401,13 +228,9 @@
 
   function updateMarkerTooltip(marker, p, gpsOnline, kompAktif){
     if (gpsOnline || kompAktif){
-      var content = '<div class="marker-name">' + p.nama + '</div>';
-      var isPerencana = (p.sumber === 'lapangan+kantor' || p.sumber === 'kantor');
-      var locStyle = isPerencana ? ' style="color:#8FA4FF;"' : '';
-
+      var content = '<div class="marker-name">' + p.nama + '</div>', locStyle = (p.sumber === 'lapangan+kantor' || p.sumber === 'kantor') ? ' style="color:#8FA4FF;"' : '';
       if (gpsOnline) { if (p.gps.alamat && p.gps.alamat !== 'Unknown' && p.gps.alamat !== '-' && !p.gps.isAutoGeocoded) { content += '<div class="marker-loc"' + locStyle + '>' + p.gps.alamat + '</div>'; } } 
       else if (kompAktif) { content += '<div class="marker-loc"' + locStyle + '>Kantor</div>'; }
-      
       if (marker.getTooltip()) marker.setTooltipContent(content); else marker.bindTooltip(content, { permanent: true, direction: 'right', offset: [12, 0], className: 'marker-label' });
     } else if (marker.getTooltip()){ marker.unbindTooltip(); }
   }
@@ -423,159 +246,104 @@
       if (marker){ marker.setLatLng(latlng); marker.setIcon(makeIcon(gpsOnline, kompAktif, p.sumber)); } 
       else { marker = L.marker(latlng, { icon: makeIcon(gpsOnline, kompAktif, p.sumber) }).addTo(map); markerByName[p.nama] = marker; }
       
-      if (p.nama === selectedName) { marker.setZIndexOffset(1000); } else { marker.setZIndexOffset(0); }
-      updateMarkerTooltip(marker, p, gpsOnline, kompAktif);
-      seen[p.nama] = true; if (gpsOnline || kompAktif) bounds.push(latlng);
+      marker.setZIndexOffset(p.nama === selectedName ? 1000 : 0); updateMarkerTooltip(marker, p, gpsOnline, kompAktif); seen[p.nama] = true;
+      if (gpsOnline || kompAktif) bounds.push(latlng);
       
-      setTimeout(function() {
-        if (marker.getTooltip() && marker.getTooltip().getElement()) {
-          if (p.nama === selectedName) marker.getTooltip().getElement().classList.add('tooltip-on-top');
-          else marker.getTooltip().getElement().classList.remove('tooltip-on-top');
-        }
-      }, 0);
+      setTimeout(function() { if (marker.getTooltip() && marker.getTooltip().getElement()) { if (p.nama === selectedName) marker.getTooltip().getElement().classList.add('tooltip-on-top'); else marker.getTooltip().getElement().classList.remove('tooltip-on-top'); } }, 0);
     });
-    
     Object.keys(markerByName).forEach(function(nama){ if (!seen[nama]){ map.removeLayer(markerByName[nama]); delete markerByName[nama]; } });
     if (isFirst && bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
   }
 
   // ==== FUNGSI RENDER NONGKRONG GLOBAL (Cerdas Gabung Baris) ====
   function renderNongkrong(nongkrongList) {
-    globalHotspotLayers.forEach(function(l){ map.removeLayer(l); });
-    globalHotspotLayers = [];
+    globalHotspotLayers.forEach(function(l){ map.removeLayer(l); }); globalHotspotLayers = [];
     if (!nongkrongList) return;
 
     var kelompok = [];
-    
-    // Kelompokkan data yang titik lokasinya sama (Radius 50m)
     nongkrongList.forEach(function(s) {
       if (s.kode && (s.kode.trim().toUpperCase() === 'LEGAL' || s.kode.trim().toUpperCase() === 'AMAN')) return; // HILANGKAN JIKA LEGAL
-      
       var cocok = false;
       for (var i = 0; i < kelompok.length; i++) {
-        if (jarakMeter(s.lat, s.lng, kelompok[i].lat, kelompok[i].lng) <= 50) {
-           kelompok[i].records.push(s); cocok = true; break;
-        }
+        if (jarakMeter(s.lat, s.lng, kelompok[i].lat, kelompok[i].lng) <= 50) { kelompok[i].records.push(s); cocok = true; break; }
       }
       if (!cocok) kelompok.push({ lat: s.lat, lng: s.lng, namaLokasi: s.namaLokasi, records: [s] });
     });
 
-    // Render 1 Blob untuk setiap Kelompok
     kelompok.forEach(function(k) {
-      var isBahaya = false;
-      var totalWaktuGrup = 0;
-      var rincianOrangHTML = '';
-
+      var isBahaya = false, totalWaktuGrup = 0, rekapPersonil = {};
+      
+      // Hitung total HARI dan total JAM per personil
       k.records.forEach(function(rec) {
-        if (rec.totalKunjungan > 1) isBahaya = true; 
-        totalWaktuGrup += parseFloat(rec.durasiJam);
-        rincianOrangHTML += '<div style="margin-bottom:3px;">&bull; ' + rec.personil + ' <span style="color:var(--ink-dim)">(' + parseFloat(rec.durasiJam).toFixed(2).replace('.', ',') + ' jam)</span></div>';
+        var pName = rec.personil;
+        if (!rekapPersonil[pName]) rekapPersonil[pName] = { hari: 0, jam: 0 };
+        rekapPersonil[pName].hari += 1; 
+        rekapPersonil[pName].jam += parseFloat(rec.durasiJam || 0);
+        totalWaktuGrup += parseFloat(rec.durasiJam || 0);
       });
 
-      if (k.records.length > 1) isBahaya = true; // Gerombolan = Bahaya
-      var warna = isBahaya ? 'var(--red)' : 'var(--amber)'; 
-      var skala = Math.min(totalWaktuGrup / 8, 1);
-      var radius = 40 + (skala * 120);
-      var fillOpacity = 0.25 + (skala * 0.4);
+      var rincianOrangHTML = '';
+      if (Object.keys(rekapPersonil).length > 1 || k.records.length > 1) isBahaya = true; 
 
-      var blob = L.circle([k.lat, k.lng], {
-        radius: radius, color: warna, weight: 1.5, opacity: 0.6,
-        fillColor: warna, fillOpacity: fillOpacity,
-        className: isBahaya && !reduceMotion ? 'blob-danger' : ''
-      }).addTo(map);
+      for (var p in rekapPersonil) {
+        var h = rekapPersonil[p].hari, j = rekapPersonil[p].jam.toFixed(2).replace('.', ',');
+        rincianOrangHTML += '<div style="margin-bottom:4px;">&bull; ' + p + ' <span style="color:var(--ink-dim)">- Total ' + h + ' Hari (' + j + ' jam)</span></div>';
+      }
 
-      // Tooltip Rincian Masing-Masing Orang
+      var warna = isBahaya ? 'var(--red)' : 'var(--amber)', skala = Math.min(totalWaktuGrup / 8, 1), radius = 40 + (skala * 120), fillOpacity = 0.25 + (skala * 0.4);
+      var blob = L.circle([k.lat, k.lng], { radius: radius, color: warna, weight: 1.5, opacity: 0.6, fillColor: warna, fillOpacity: fillOpacity, className: isBahaya && !reduceMotion ? 'blob-danger' : '' }).addTo(map);
+
       var namaTampil = k.namaLokasi ? k.namaLokasi : 'Lokasi Curiga';
-      var tooltipHTML = '<div style="font-family:var(--font-display); line-height:1.4; padding:2px;">' +
-        '<b style="font-size:13.5px; color:' + warna + '; display:block; margin-bottom:6px;">' + namaTampil + '</b>' +
-        '<div style="font-size:11.5px; font-weight:500;">' + rincianOrangHTML + '</div>' +
-        '</div>';
+      var tooltipHTML = '<div style="font-family:var(--font-display); line-height:1.4; padding:4px;"><b style="font-size:13.5px; color:' + warna + '; display:block; margin-bottom:8px;">' + namaTampil + '</b><div style="font-size:11.5px; font-weight:500;">' + rincianOrangHTML + '</div></div>';
 
-      blob.bindTooltip(tooltipHTML, {className: 'marker-label', direction: 'top'});
-      blob.bringToBack();
-      globalHotspotLayers.push(blob);
+      blob.bindTooltip(tooltipHTML, {className: 'marker-label', direction: 'top'}); blob.bringToBack(); globalHotspotLayers.push(blob);
     });
   }
 
   var routeLayer = null;
-
   function selectPerson(nama){
     selectedName = nama;
-    Object.keys(markerByName).forEach(function(key){
-      var m = markerByName[key];
-      if(m) { m.setZIndexOffset(0); if (m.getTooltip() && m.getTooltip().getElement()) m.getTooltip().getElement().classList.remove('tooltip-on-top'); }
-    });
-
+    Object.keys(markerByName).forEach(function(key){ var m = markerByName[key]; if(m) { m.setZIndexOffset(0); if (m.getTooltip() && m.getTooltip().getElement()) m.getTooltip().getElement().classList.remove('tooltip-on-top'); } });
     var marker = markerByName[nama];
     if (marker){ marker.setZIndexOffset(1000); if (marker.getTooltip() && marker.getTooltip().getElement()) marker.getTooltip().getElement().classList.add('tooltip-on-top'); }
     document.querySelectorAll('.person').forEach(function(el){ el.classList.toggle('selected', el.dataset.nama === nama); });
-
     if (routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
     
     var p = allPeople.find(function(x){ return x.nama === nama; }); if (!p) return; 
-
     var lagiOnline = !!(p.gps && p.gps.online), ruteHariIni = false;
-    if (p.gps && p.gps.waktu) {
-      var gpsDate = new Date(p.gps.waktu.replace(' ', 'T')), todayDate = new Date();
-      if (gpsDate.getDate() === todayDate.getDate() && gpsDate.getMonth() === todayDate.getMonth() && gpsDate.getFullYear() === todayDate.getFullYear()) { ruteHariIni = true; }
-    }
+    if (p.gps && p.gps.waktu) { var gpsDate = new Date(p.gps.waktu.replace(' ', 'T')), todayDate = new Date(); if (gpsDate.getDate() === todayDate.getDate() && gpsDate.getMonth() === todayDate.getMonth() && gpsDate.getFullYear() === todayDate.getFullYear()) { ruteHariIni = true; } }
     
     var adaJalur = !!(p.gps && p.gps.jalur && p.gps.jalur.length > 1 && ruteHariIni);
     if (adaJalur){
       var warnaRute = lagiOnline ? ((p.sumber === 'lapangan+kantor' || p.sumber === 'kantor') ? '#5A78FF' : '#34E27E') : '#B8C2DE';
       routeLayer = L.polyline(p.gps.jalur, { color: warnaRute, weight: 3, opacity: lagiOnline ? 0.85 : 0.75, lineCap: 'round', className: reduceMotion ? '' : 'route-flow' }).addTo(map);
-      var routeEl = routeLayer.getElement(); if (routeEl) routeEl.style.filter = 'drop-shadow(0 0 ' + (lagiOnline ? '4px' : '2px') + ' ' + warnaRute + ')';
-      routeLayer.bringToBack();
+      var routeEl = routeLayer.getElement(); if (routeEl) routeEl.style.filter = 'drop-shadow(0 0 ' + (lagiOnline ? '4px' : '2px') + ' ' + warnaRute + ')'; routeLayer.bringToBack();
     }
-
     if (!lagiOnline && adaJalur){ map.flyToBounds(routeLayer.getBounds(), { padding: [50, 50], maxZoom: 16, duration: reduceMotion ? 0 : 1.1 }); } 
     else if (marker){ map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 15), { duration: reduceMotion ? 0 : 1.1 }); }
   }
 
   function showAllActive(activeMapUsers) {
     selectedName = null;
-    Object.keys(markerByName).forEach(function(key){
-      var m = markerByName[key];
-      if(m) { m.setZIndexOffset(0); if (m.getTooltip() && m.getTooltip().getElement()) m.getTooltip().getElement().classList.remove('tooltip-on-top'); }
-    });
+    Object.keys(markerByName).forEach(function(key){ var m = markerByName[key]; if(m) { m.setZIndexOffset(0); if (m.getTooltip() && m.getTooltip().getElement()) m.getTooltip().getElement().classList.remove('tooltip-on-top'); } });
     document.querySelectorAll('.person').forEach(function(el){ el.classList.remove('selected'); });
     if (routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
 
-    var activeBounds = [];
-    activeMapUsers.forEach(function(p){ var m = markerByName[p.nama]; if (m) activeBounds.push(m.getLatLng()); });
-
-    if (activeBounds.length > 0) {
-       isProgrammaticMove = true;
-       map.flyToBounds(activeBounds, { padding: [50, 50], maxZoom: 15, duration: reduceMotion ? 0 : 1.2 });
-       setTimeout(function(){ isProgrammaticMove = false; }, 1500); 
-    }
+    var activeBounds = []; activeMapUsers.forEach(function(p){ var m = markerByName[p.nama]; if (m) activeBounds.push(m.getLatLng()); });
+    if (activeBounds.length > 0) { isProgrammaticMove = true; map.flyToBounds(activeBounds, { padding: [50, 50], maxZoom: 15, duration: reduceMotion ? 0 : 1.2 }); setTimeout(function(){ isProgrammaticMove = false; }, 1500); }
   }
 
   function renderRoster(animate){
     var el = document.getElementById('roster'), prevScroll = el.scrollTop;
-    var filtered = allPeople.filter(function(p){
-      if (activeFilter !== 'semua' && p.sumber !== activeFilter) return false;
-      if (searchTerm && p.nama.toLowerCase().indexOf(searchTerm) === -1) return false;
-      return true;
-    });
-
-    filtered.sort(function(a, b){
-      var ai = isAktif(a) ? 1 : 0, bi = isAktif(b) ? 1 : 0;
-      if (bi !== ai) return bi - ai; 
-      if (ai === 1) { 
-        var timeA = lastOnlineTime[a.nama] || 0, timeB = lastOnlineTime[b.nama] || 0;
-        if (timeB !== timeA) return timeB - timeA; 
-      } return a.nama.localeCompare(b.nama); 
-    });
+    var filtered = allPeople.filter(function(p){ if (activeFilter !== 'semua' && p.sumber !== activeFilter) return false; if (searchTerm && p.nama.toLowerCase().indexOf(searchTerm) === -1) return false; return true; });
+    filtered.sort(function(a, b){ var ai = isAktif(a) ? 1 : 0, bi = isAktif(b) ? 1 : 0; if (bi !== ai) return bi - ai; if (ai === 1) { var timeA = lastOnlineTime[a.nama] || 0, timeB = lastOnlineTime[b.nama] || 0; if (timeB !== timeA) return timeB - timeA; } return a.nama.localeCompare(b.nama); });
 
     if (!filtered.length){ el.innerHTML = '<div class="state"><b>Tidak ada yang cocok</b>Coba ubah kata kunci pencarian atau filter di atas.</div>'; return; }
 
     el.innerHTML = filtered.map(function(p, i){
       var t = tagInfo(p.sumber), online = p.gps ? p.gps.online : null, kompAktif = !!(p.komputer && p.komputer.aktifDetik > 0);
-      var isPerencana = (p.sumber === 'lapangan+kantor' || p.sumber === 'kantor');
-      var dotCls = 'off'; if (online || kompAktif) { dotCls = isPerencana ? 'komp' : 'ok'; }
+      var dotCls = 'off'; if (online || kompAktif) { dotCls = (p.sumber === 'lapangan+kantor' || p.sumber === 'kantor') ? 'komp' : 'ok'; }
       var hasLoc = !!(p.gps && p.gps.lat != null) || kompAktif; 
-
       var isNewArrival = highlightQueue[p.nama]; if (isNewArrival) delete highlightQueue[p.nama]; 
 
       var gpsLine = p.gps ? '<div class="pmeta">GPS &middot; <b>' + (p.gps.alamat || (p.gps.online ? 'Online' : 'Offline')) + '</b>' + (p.gps.waktu ? ' <span class="mono">' + p.gps.waktu + '</span>' : '') + '</div>' : '';
@@ -585,10 +353,7 @@
         var segKantor = '';
         if (p.intensitasKantorPerJam) {
           var maxJam = Math.max.apply(null, p.intensitasKantorPerJam);
-          segKantor = p.intensitasKantorPerJam.map(function(cnt, jam){
-            if (!cnt) return ''; var s = (jam / 24) * 100, w = 100 / 24, opacity = maxJam > 0 ? Math.min(Math.max(cnt / maxJam, 0.25), 1).toFixed(2) : 0.25;
-            return '<div class="seg-kantor" style="left:' + s.toFixed(2) + '%;width:' + w.toFixed(2) + '%;opacity:' + opacity + '"></div>';
-          }).join('');
+          segKantor = p.intensitasKantorPerJam.map(function(cnt, jam){ if (!cnt) return ''; var s = (jam / 24) * 100, w = 100 / 24, opacity = maxJam > 0 ? Math.min(Math.max(cnt / maxJam, 0.25), 1).toFixed(2) : 0.25; return '<div class="seg-kantor" style="left:' + s.toFixed(2) + '%;width:' + w.toFixed(2) + '%;opacity:' + opacity + '"></div>'; }).join('');
         }
         var totalLapanganKantor = (p.totalKantorHariIni || 0) + totalDetikSegmen(p.jadwalGps, ['Kantor', '304ghnsR']);
         jadwalLine = '<div class="pmeta">Jam aktif lapangan &amp; kantor &middot; <b>' + formatJam(totalLapanganKantor) + '</b></div>' + '<div class="jadwalbar-gab"><div class="lane lane-lapangan">' + segLapangan + '</div><div class="lane lane-kantor">' + segKantor + '</div></div>';
@@ -614,8 +379,7 @@
   }
 
   function positionSegHighlight(btn){
-    var wrap = document.getElementById('segmented'), hl = document.getElementById('segHighlight');
-    var wrapBox = wrap.getBoundingClientRect(), btnBox = btn.getBoundingClientRect();
+    var wrap = document.getElementById('segmented'), hl = document.getElementById('segHighlight'), wrapBox = wrap.getBoundingClientRect(), btnBox = btn.getBoundingClientRect();
     hl.style.left = (btnBox.left - wrapBox.left) + 'px'; hl.style.width = btnBox.width + 'px';
   }
 
@@ -623,70 +387,37 @@
   function geocodeKey(lat, lng){ return lat.toFixed(4) + ',' + lng.toFixed(4); }
   function reverseGeocode(lat, lng, callback){
     var key = geocodeKey(lat, lng); if (geocodeCache[key]){ callback(geocodeCache[key]); return; }
-    fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng + '&zoom=17&addressdetails=1')
-      .then(function(r){ return r.json(); }).then(function(data){
-        var a = data.address || {}, label = a.road || a.pedestrian || a.neighbourhood || a.suburb || a.village || null;
-        if (label) geocodeCache[key] = label; callback(label);
-      }).catch(function(){ callback(null); });
+    fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng + '&zoom=17&addressdetails=1').then(function(r){ return r.json(); }).then(function(data){ var a = data.address || {}, label = a.road || a.pedestrian || a.neighbourhood || a.suburb || a.village || null; if (label) geocodeCache[key] = label; callback(label); }).catch(function(){ callback(null); });
   }
 
   function isiAlamatOtomatis(people){
-    if (geocodeBusy) return;
-    var antrian = people.filter(function(p){ return p.gps && p.gps.online && p.gps.lat != null && (!p.gps.alamat || p.gps.alamat === 'Unknown'); });
-    if (!antrian.length) return; geocodeBusy = true;
+    if (geocodeBusy) return; var antrian = people.filter(function(p){ return p.gps && p.gps.online && p.gps.lat != null && (!p.gps.alamat || p.gps.alamat === 'Unknown'); }); if (!antrian.length) return; geocodeBusy = true;
     function next(){
-      if (!antrian.length){ geocodeBusy = false; return; }
-      var p = antrian.shift();
-      reverseGeocode(p.gps.lat, p.gps.lng, function(label){
-        if (label){
-          p.gps.alamat = label; p.gps.isAutoGeocoded = true; renderRoster(false);
-          var marker = markerByName[p.nama]; if (marker) { updateMarkerTooltip(marker, p, true, false); }
-        } setTimeout(next, 1100); 
-      });
+      if (!antrian.length){ geocodeBusy = false; return; } var p = antrian.shift();
+      reverseGeocode(p.gps.lat, p.gps.lng, function(label){ if (label){ p.gps.alamat = label; p.gps.isAutoGeocoded = true; renderRoster(false); var marker = markerByName[p.nama]; if (marker) { updateMarkerTooltip(marker, p, true, false); } } setTimeout(next, 1100); });
     } next();
   }
 
-  var SEBULAN_MS = 30 * 24 * 60 * 60 * 1000;
-  function aktivitasTerakhir(p){
-    var t1 = p.gps && p.gps.waktu ? new Date(p.gps.waktu.replace(' ', 'T')) : null, t2 = p.komputer && p.komputer.terakhirAktif ? new Date(p.komputer.terakhirAktif) : null;
-    var valid = [t1, t2].filter(function(d){ return d && !isNaN(d.getTime()); });
-    if (!valid.length) return null; return new Date(Math.max.apply(null, valid.map(function(d){ return d.getTime(); })));
-  }
-  function masihRelevan(p){ var last = aktivitasTerakhir(p); if (!last) return false; return (Date.now() - last.getTime()) <= SEBULAN_MS; }
+  function aktivitasTerakhir(p){ var t1 = p.gps && p.gps.waktu ? new Date(p.gps.waktu.replace(' ', 'T')) : null, t2 = p.komputer && p.komputer.terakhirAktif ? new Date(p.komputer.terakhirAktif) : null; var valid = [t1, t2].filter(function(d){ return d && !isNaN(d.getTime()); }); if (!valid.length) return null; return new Date(Math.max.apply(null, valid.map(function(d){ return d.getTime(); }))); }
+  function masihRelevan(p){ var last = aktivitasTerakhir(p); if (!last) return false; return (Date.now() - last.getTime()) <= (30 * 24 * 60 * 60 * 1000); }
 
-  // ============ LOGIKA SLIDESHOW ============
-  function scheduleNextSlide(delay) {
-    if (isSlideshowStopped) return;
-    if (slideshowTimer) clearTimeout(slideshowTimer); slideshowTimer = setTimeout(playSlideshowStep, delay);
-  }
+  function scheduleNextSlide(delay) { if (isSlideshowStopped) return; if (slideshowTimer) clearTimeout(slideshowTimer); slideshowTimer = setTimeout(playSlideshowStep, delay); }
   function playSlideshowStep() {
-    if (isSlideshowStopped) return;
-    var activeMapUsers = allPeople.filter(function(p){ return !!(p.gps && p.gps.online && p.gps.lat != null) || !!(p.komputer && p.komputer.aktifDetik > 0); });
+    if (isSlideshowStopped) return; var activeMapUsers = allPeople.filter(function(p){ return !!(p.gps && p.gps.online && p.gps.lat != null) || !!(p.komputer && p.komputer.aktifDetik > 0); });
     if (!activeMapUsers.length) { scheduleNextSlide(SLIDESHOW_SPEED_MS); return; }
-    activeMapUsers.sort(function(a, b){
-      var timeA = lastOnlineTime[a.nama] || 0, timeB = lastOnlineTime[b.nama] || 0;
-      if (timeB !== timeA) return timeB - timeA; return a.nama.localeCompare(b.nama);
-    });
+    activeMapUsers.sort(function(a, b){ var timeA = lastOnlineTime[a.nama] || 0, timeB = lastOnlineTime[b.nama] || 0; if (timeB !== timeA) return timeB - timeA; return a.nama.localeCompare(b.nama); });
     if (slideshowIndex >= activeMapUsers.length) { showAllActive(activeMapUsers); slideshowIndex = 0; scheduleNextSlide(FULL_VIEW_DELAY_MS); } 
-    else {
-      var targetPerson = activeMapUsers[slideshowIndex]; isProgrammaticMove = true; selectPerson(targetPerson.nama);
-      setTimeout(function(){ isProgrammaticMove = false; }, 1500); slideshowIndex++; scheduleNextSlide(SLIDESHOW_SPEED_MS); 
-    }
+    else { var targetPerson = activeMapUsers[slideshowIndex]; isProgrammaticMove = true; selectPerson(targetPerson.nama); setTimeout(function(){ isProgrammaticMove = false; }, 1500); slideshowIndex++; scheduleNextSlide(SLIDESHOW_SPEED_MS); }
   }
   function startSlideshow() { isSlideshowStopped = false; if (resumeTimer) clearTimeout(resumeTimer); playSlideshowStep();  }
   function pauseSlideshow() { isSlideshowStopped = true; if (slideshowTimer) clearTimeout(slideshowTimer); if (resumeTimer) clearTimeout(resumeTimer); resumeTimer = setTimeout(function() { startSlideshow(); }, RESUME_DELAY_MS); }
 
   function prosesDataUI(json, isFirst) {
     allPeople = (json.data || []).filter(masihRelevan);
-    allPeople.forEach(function(p){
-      var currentActive = isAktif(p);
-      if (isFirst) { wasActiveStatus[p.nama] = currentActive; lastOnlineTime[p.nama] = 0; } 
-      else { if (currentActive && !wasActiveStatus[p.nama]) { lastOnlineTime[p.nama] = Date.now(); highlightQueue[p.nama] = true; } wasActiveStatus[p.nama] = currentActive; }
-    });
+    allPeople.forEach(function(p){ var currentActive = isAktif(p); if (isFirst) { wasActiveStatus[p.nama] = currentActive; lastOnlineTime[p.nama] = 0; } else { if (currentActive && !wasActiveStatus[p.nama]) { lastOnlineTime[p.nama] = Date.now(); highlightQueue[p.nama] = true; } wasActiveStatus[p.nama] = currentActive; } });
     document.getElementById('updatedAt').textContent = 'diperbarui ' + new Date(json.updatedAt).toLocaleTimeString('id-ID');
     renderStats(allPeople, isFirst); renderMap(allPeople, isFirst); renderRoster(isFirst);
-    renderNongkrong(json.nongkrong); // Gambar blob Cerdas
-    isiAlamatOtomatis(allPeople);
+    renderNongkrong(json.nongkrong); isiAlamatOtomatis(allPeople);
   }
 
   function muat(){
@@ -698,8 +429,7 @@
     }
     fetch(API_URL).then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function(json){
-        localStorage.setItem(CACHE_KEY, JSON.stringify(json));
-        var isFirst = !hasLoadedOnce; hasLoadedOnce = true; prosesDataUI(json, isFirst);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(json)); var isFirst = !hasLoadedOnce; hasLoadedOnce = true; prosesDataUI(json, isFirst);
         if (isFirst && !isSlideshowStopped) setTimeout(function() { startSlideshow(); }, 2000); 
       }).catch(function(err){
         if (!hasLoadedOnce){ document.getElementById('roster').innerHTML = '<div class="state"><b>Gagal memuat data</b>' + err.message + '.</div>'; document.getElementById('updatedAt').textContent = 'gagal memuat'; } 
@@ -710,12 +440,7 @@
   document.getElementById('refreshBtn').addEventListener('click', muat);
   document.getElementById('searchInput').addEventListener('input', function(e){ searchTerm = e.target.value.trim().toLowerCase(); renderRoster(true); });
   document.getElementById('roster').addEventListener('click', function(e){ var row = e.target.closest('.person.clickable'); if (row) { pauseSlideshow(); selectPerson(row.dataset.nama); } });
-  document.querySelectorAll('.seg-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      document.querySelectorAll('.seg-btn').forEach(function(b){ b.dataset.active = 'false'; });
-      btn.dataset.active = 'true'; activeFilter = btn.dataset.filter; positionSegHighlight(btn); renderRoster(true);
-    });
-  });
+  document.querySelectorAll('.seg-btn').forEach(function(btn){ btn.addEventListener('click', function(){ document.querySelectorAll('.seg-btn').forEach(function(b){ b.dataset.active = 'false'; }); btn.dataset.active = 'true'; activeFilter = btn.dataset.filter; positionSegHighlight(btn); renderRoster(true); }); });
 
   window.addEventListener('load', function(){ positionSegHighlight(document.querySelector('.seg-btn[data-active="true"]')); });
   window.addEventListener('resize', function(){ positionSegHighlight(document.querySelector('.seg-btn[data-active="true"]')); });
