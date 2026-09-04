@@ -72,8 +72,9 @@
   .route-flow{ stroke-dasharray: 10 14; animation: routeFlow 0.9s linear infinite; }
   @keyframes routeFlow{ to{ stroke-dashoffset: -48; } }
 
-  @keyframes pulseBlob { 0% { filter: drop-shadow(0 0 2px rgba(255,75,75,0.4)); transform: scale(0.98); } 50% { filter: drop-shadow(0 0 12px rgba(255,75,75,0.8)); transform: scale(1.02); } 100% { filter: drop-shadow(0 0 2px rgba(255,75,75,0.4)); transform: scale(0.98); } }
-  .blob-danger { animation: pulseBlob 2.5s infinite; transform-origin: center; }
+  /* Animasi Blob yang Diperbarui (Lebih Ringan) */
+  @keyframes pulseBlob { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+  .blob-danger { animation: pulseBlob 2s ease-in-out infinite; transform-origin: center; }
 
   /* ---------- Segmented & Roster ---------- */
   .seg-row{ padding:16px 16px 0; }
@@ -262,7 +263,7 @@
 
     var kelompok = [];
     nongkrongList.forEach(function(s) {
-      if (s.kode && (s.kode.trim().toUpperCase() === 'LEGAL' || s.kode.trim().toUpperCase() === 'AMAN')) return; // HILANGKAN JIKA LEGAL
+      if (s.kode && (s.kode.trim().toUpperCase() === 'LEGAL' || s.kode.trim().toUpperCase() === 'AMAN')) return; 
       var cocok = false;
       for (var i = 0; i < kelompok.length; i++) {
         if (jarakMeter(s.lat, s.lng, kelompok[i].lat, kelompok[i].lng) <= 50) { kelompok[i].records.push(s); cocok = true; break; }
@@ -273,7 +274,6 @@
     kelompok.forEach(function(k) {
       var isBahaya = false, totalWaktuGrup = 0, rekapPersonil = {};
       
-      // Hitung total HARI dan total JAM per personil
       k.records.forEach(function(rec) {
         var pName = rec.personil;
         if (!rekapPersonil[pName]) rekapPersonil[pName] = { hari: 0, jam: 0 };
