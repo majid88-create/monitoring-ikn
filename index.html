@@ -572,17 +572,18 @@
     if (marker){
       marker.setZIndexOffset(1000); 
       if (marker.getTooltip() && marker.getTooltip().getElement()) { marker.getTooltip().getElement().classList.add('tooltip-on-top'); }
-      map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 15), { duration: reduceMotion ? 0 : 1.1 });
     }
     document.querySelectorAll('.person').forEach(function(el){ el.classList.toggle('selected', el.dataset.nama === nama); });
 
     if (routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
     var p = allPeople.find(function(x){ return x.nama === nama; });
-    if (p && p.gps && p.gps.jalur && p.gps.jalur.length > 1){
-      var lagiOnline = !!p.gps.online;
+    var lagiOnline = !!(p && p.gps && p.gps.online);
+    var adaJalur = !!(p && p.gps && p.gps.jalur && p.gps.jalur.length > 1);
+
+    if (adaJalur){
       var warnaRute = lagiOnline
         ? ((p.sumber === 'lapangan+kantor') ? '#5A78FF' : '#34E27E')
-        : '#4C5776';
+        : '#B8C2DE';
       routeLayer = L.polyline(p.gps.jalur, {
         color: warnaRute, weight: 3, opacity: lagiOnline ? 0.85 : 0.75, lineCap: 'round',
         className: reduceMotion ? '' : 'route-flow'
@@ -590,6 +591,13 @@
       var routeEl = routeLayer.getElement();
       if (routeEl) routeEl.style.filter = 'drop-shadow(0 0 ' + (lagiOnline ? '4px' : '2px') + ' ' + warnaRute + ')';
       routeLayer.bringToBack();
+    }
+
+    if (!lagiOnline && adaJalur){
+      // Offline: perlihatkan seluruh bentang rute yang pernah dilalui hari itu.
+      map.flyToBounds(routeLayer.getBounds(), { padding: [50, 50], maxZoom: 16, duration: reduceMotion ? 0 : 1.1 });
+    } else if (marker){
+      map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 15), { duration: reduceMotion ? 0 : 1.1 });
     }
   }
 
