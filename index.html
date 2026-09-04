@@ -20,6 +20,7 @@
     --teal-dim: rgba(70,224,198,0.14);
     --green: #34E27E;
     --amber: #FFC24B;
+    --red: #FF4B4B;
     --slate: #4C5776;
     --radius-lg: 22px;
     --radius-md: 14px;
@@ -118,9 +119,7 @@
     line-height:1.2 !important;
   }
   
-  .tooltip-on-top {
-    z-index: 9999 !important; 
-  }
+  .tooltip-on-top { z-index: 9999 !important; }
 
   .marker-label::before{ display:none !important; }
   .marker-name { font-size:12.5px; font-weight:700; }
@@ -149,12 +148,15 @@
 
   @keyframes pulse{ 0%{ transform:scale(0.5); opacity:0.85; } 100%{ transform:scale(2); opacity:0; } }
 
-  .route-flow{
-    stroke-dasharray: 10 14;
-    animation: routeFlow 0.9s linear infinite;
-  }
+  .route-flow{ stroke-dasharray: 10 14; animation: routeFlow 0.9s linear infinite; }
   @keyframes routeFlow{ to{ stroke-dashoffset: -48; } }
-  @media (prefers-reduced-motion: reduce){ .route-flow{ animation:none; } }
+
+  @keyframes pulseBlob {
+    0% { filter: drop-shadow(0 0 2px rgba(255,75,75,0.4)); transform: scale(0.98); }
+    50% { filter: drop-shadow(0 0 12px rgba(255,75,75,0.8)); transform: scale(1.02); }
+    100% { filter: drop-shadow(0 0 2px rgba(255,75,75,0.4)); transform: scale(0.98); }
+  }
+  .blob-danger { animation: pulseBlob 2.5s infinite; transform-origin: center; }
 
   /* ---------- Segmented filter ---------- */
   .seg-row{ padding:16px 16px 0; }
@@ -176,24 +178,16 @@
   }
   .seg-btn[data-active="true"]{ color:#04120F; }
 
-  /* CSS BADGE NOTIFIKASI */
   .seg-btn .badge {
     display: inline-flex; align-items: center; justify-content: center;
     background: rgba(70,224,198,0.15); color: var(--teal);
     border: 1px solid rgba(70,224,198,0.3);
     font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
     height: 18px; min-width: 18px; border-radius: 999px; padding: 0 5px; margin-left: 6px;
-    transform: translateY(-1px);
-    transition: all 0.2s ease;
+    transform: translateY(-1px); transition: all 0.2s ease;
   }
-  .seg-btn[data-active="true"] .badge {
-    background: var(--void); 
-    color: var(--teal);
-    border-color: transparent;
-  }
-  .seg-btn .badge.hidden {
-    display: none;
-  }
+  .seg-btn[data-active="true"] .badge { background: var(--void); color: var(--teal); border-color: transparent; }
+  .seg-btn .badge.hidden { display: none; }
 
   /* ---------- Roster ---------- */
   .roster{ padding:8px 10px 14px; max-height:640px; overflow-y:auto; }
@@ -203,8 +197,7 @@
   .person{
     display:flex; align-items:flex-start; gap:12px; padding:13px 12px;
     border-radius:14px; cursor:default; border:1px solid transparent;
-    opacity:0; transform:translateY(8px);
-    animation:riseIn .45s ease forwards;
+    opacity:0; transform:translateY(8px); animation:riseIn .45s ease forwards;
   }
   .person.clickable{ cursor:pointer; }
   .person.clickable:hover{ background:var(--surface-2); }
@@ -214,24 +207,15 @@
     0% { background: rgba(52, 226, 126, 0.25); border-color: rgba(52, 226, 126, 0.8); }
     100% { background: transparent; border-color: transparent; }
   }
-  .person.new-arrival {
-    animation: riseIn .45s ease forwards, highlightNew 4s ease-out forwards;
-  }
-
+  .person.new-arrival { animation: riseIn .45s ease forwards, highlightNew 4s ease-out forwards; }
   @keyframes riseIn{ to{ opacity:1; transform:translateY(0); } }
 
   .dot{ width:11px; height:11px; border-radius:50%; margin-top:6px; flex-shrink:0; position:relative; }
   .dot.ok{ background:var(--green); box-shadow:0 0 8px var(--green); }
   .dot.off{ background:var(--slate); }
   .dot.komp{ background:#5A78FF; box-shadow:0 0 8px #5A78FF; }
-  .dot.ok::after{
-    content:''; position:absolute; inset:-5px; border-radius:50%;
-    border:1.5px solid var(--green); animation:pulse 2.4s ease-out infinite;
-  }
-  .dot.komp::after{
-    content:''; position:absolute; inset:-5px; border-radius:50%;
-    border:1.5px solid #5A78FF; animation:pulse 2.4s ease-out infinite;
-  }
+  .dot.ok::after{ content:''; position:absolute; inset:-5px; border-radius:50%; border:1.5px solid var(--green); animation:pulse 2.4s ease-out infinite; }
+  .dot.komp::after{ content:''; position:absolute; inset:-5px; border-radius:50%; border:1.5px solid #5A78FF; animation:pulse 2.4s ease-out infinite; }
 
   .pinfo{ flex:1; min-width:0; }
   .prow1{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -251,17 +235,13 @@
 
   .jadwalbar{
     position:relative; height:6px; border-radius:4px; margin-top:6px; overflow:hidden;
-    background:
-      repeating-linear-gradient(to right, transparent, transparent calc(25% - 1px), rgba(255,255,255,0.10) calc(25% - 1px), rgba(255,255,255,0.10) 25%),
-      var(--void);
+    background: repeating-linear-gradient(to right, transparent, transparent calc(25% - 1px), rgba(255,255,255,0.10) calc(25% - 1px), rgba(255,255,255,0.10) 25%), var(--void);
   }
   .jadwalbar-seg{ position:absolute; top:0; bottom:0; background:var(--green); }
 
   .jadwalbar-gab{
     position:relative; border-radius:4px; margin-top:6px; overflow:hidden; height:13px;
-    background:
-      repeating-linear-gradient(to right, transparent, transparent calc(25% - 1px), rgba(255,255,255,0.10) calc(25% - 1px), rgba(255,255,255,0.10) 25%),
-      var(--void);
+    background: repeating-linear-gradient(to right, transparent, transparent calc(25% - 1px), rgba(255,255,255,0.10) calc(25% - 1px), rgba(255,255,255,0.10) 25%), var(--void);
   }
   .jadwalbar-gab .lane{ position:absolute; left:0; right:0; height:5px; }
   .jadwalbar-gab .lane-lapangan{ top:0; }
@@ -275,6 +255,8 @@
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; transition:none !important; }
     .person{ opacity:1; transform:none; }
+    .route-flow{ animation:none; }
+    .blob-danger { animation:none; }
   }
 </style>
 </head>
@@ -352,19 +334,17 @@
   var wasActiveStatus = {}; 
   var lastOnlineTime = {};  
   var highlightQueue = {};  
+  var globalHotspotLayers = []; // Penampung blob anomali global
 
-  var slideshowTimer = null;
-  var resumeTimer = null; 
-  var slideshowIndex = 0;
+  var slideshowTimer = null, resumeTimer = null, slideshowIndex = 0;
   var isSlideshowStopped = false;
-  var SLIDESHOW_SPEED_MS = 7000;  // 7 detik per orang
-  var FULL_VIEW_DELAY_MS = 10000; // 10 detik saat view semua orang
-  var RESUME_DELAY_MS = 60000;    // 1 menit jeda pause
+  var SLIDESHOW_SPEED_MS = 7000;
+  var FULL_VIEW_DELAY_MS = 10000;
+  var RESUME_DELAY_MS = 60000;
 
   function formatJam(detik){
     if (detik == null || isNaN(detik)) return '–';
-    var jam = Math.floor(detik / 3600);
-    var menit = Math.round((detik % 3600) / 60);
+    var jam = Math.floor(detik / 3600), menit = Math.round((detik % 3600) / 60);
     return jam + 'j ' + menit + 'm';
   }
 
@@ -373,51 +353,6 @@
     if (!m) return 0;
     var detik = (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]);
     return (detik / 86400) * 100;
-  }
-
-  var JAM_KERJA_MULAI = 7;   // batas deteksi hotspot: cuma jam kerja, biar rumah pas
-  var JAM_KERJA_SELESAI = 18; // tidur malam gak ke-anggep hotspot raksasa
-
-  function jarakMeter(lat1, lng1, lat2, lng2){
-    var R = 6371000;
-    var dLat = (lat2 - lat1) * Math.PI / 180;
-    var dLng = (lng2 - lng1) * Math.PI / 180;
-    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  }
-
-  // Deteksi kelompok titik yang rapat jarak (<= radiusMeter) DAN rapat waktu
-  // (durasi >= minDetik) - dipakai sebagai penanda "nongkrong lama di sini",
-  // tanpa peduli lokasinya proyek terdaftar atau bukan.
-  function deteksiTitikNongkrong(jalurMentah, radiusMeter, minDetik){
-    var titik = (jalurMentah || [])
-      .map(function(pt){ return { lat: pt[0], lng: pt[1], time: new Date(pt[2]) }; })
-      .filter(function(t){
-        var jam = t.time.getHours();
-        return jam >= JAM_KERJA_MULAI && jam < JAM_KERJA_SELESAI;
-      })
-      .sort(function(a, b){ return a.time - b.time; });
-
-    var hasil = [];
-    var i = 0;
-    while (i < titik.length){
-      var j = i + 1;
-      while (j < titik.length && jarakMeter(titik[i].lat, titik[i].lng, titik[j].lat, titik[j].lng) <= radiusMeter){
-        j++;
-      }
-      var durasi = (titik[j - 1].time - titik[i].time) / 1000;
-      if (durasi >= minDetik){
-        var n = j - i, sumLat = 0, sumLng = 0;
-        for (var k = i; k < j; k++){ sumLat += titik[k].lat; sumLng += titik[k].lng; }
-        hasil.push({ lat: sumLat / n, lng: sumLng / n, durasiDetik: durasi });
-        i = j;
-      } else {
-        i++;
-      }
-    }
-    return hasil;
   }
 
   function totalDetikSegmen(segmen, kecualikanNama){
@@ -431,20 +366,6 @@
     return total;
   }
 
-  function ringkasanLokasi(segmen){
-    var perLokasi = {};
-    (segmen || []).forEach(function(s){
-      var mulai = new Date(s.mulai), selesai = new Date(s.selesai);
-      var diff = (selesai - mulai) / 1000;
-      if (diff <= 0) return;
-      var nama = s.nama || 'Tidak diketahui';
-      perLokasi[nama] = (perLokasi[nama] || 0) + diff;
-    });
-    return Object.keys(perLokasi)
-      .map(function(nama){ return { nama: nama, detik: perLokasi[nama] }; })
-      .sort(function(a, b){ return b.detik - a.detik; });
-  }
-
   function tagInfo(sumber){
     if (sumber === 'kantor') return { label: 'Kantor', cls: 'kantor' };
     if (sumber === 'lapangan+kantor') return { label: 'Perencana', cls: 'gab' };
@@ -453,25 +374,14 @@
 
   function makeIcon(gpsOnline, kompAktif, sumber){
     if (kompAktif && !gpsOnline) {
-      return L.divIcon({
-        html: '<span class="marker-dot komp-online"><span class="pulse-ring komp-pulse"></span></span>',
-        className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8]
-      });
+      return L.divIcon({ html: '<span class="marker-dot komp-online"><span class="pulse-ring komp-pulse"></span></span>', className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8] });
     }
     if (!gpsOnline) {
-      return L.divIcon({
-        html: '<span class="marker-dot offline"></span>',
-        className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8]
-      });
+      return L.divIcon({ html: '<span class="marker-dot offline"></span>', className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8] });
     }
-    // Online: warna ikut peran - hijau Pengawas, biru Perencana.
     var perencana = (sumber === 'lapangan+kantor' || sumber === 'kantor');
-    var dotCls = perencana ? 'komp-online' : 'online';
-    var pulseCls = perencana ? 'komp-pulse' : '';
-    return L.divIcon({
-      html: '<span class="marker-dot ' + dotCls + '"><span class="pulse-ring ' + pulseCls + '"></span></span>',
-      className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8]
-    });
+    var dotCls = perencana ? 'komp-online' : 'online', pulseCls = perencana ? 'komp-pulse' : '';
+    return L.divIcon({ html: '<span class="marker-dot ' + dotCls + '"><span class="pulse-ring ' + pulseCls + '"></span></span>', className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8] });
   }
 
   function animateCount(el, to){
@@ -486,9 +396,7 @@
     requestAnimationFrame(step);
   }
 
-  function isAktif(p){
-    return !!(p.gps && p.gps.online) || !!(p.komputer && p.komputer.aktifDetik > 0);
-  }
+  function isAktif(p){ return !!(p.gps && p.gps.online) || !!(p.komputer && p.komputer.aktifDetik > 0); }
 
   function renderStats(people, animate){
     var online = people.filter(function(p){ return p.gps && p.gps.online; }).length;
@@ -512,17 +420,11 @@
 
     function updateBadge(id, count) {
       var el = document.getElementById(id);
-      if (el) {
-        el.textContent = count;
-        if (count > 0) el.classList.remove('hidden');
-        else el.classList.add('hidden');
-      }
+      if (el) { el.textContent = count; if (count > 0) el.classList.remove('hidden'); else el.classList.add('hidden'); }
     }
 
-    updateBadge('badge-semua', activeSemua);
-    updateBadge('badge-lapangan', activeLapangan);
-    updateBadge('badge-kantor', activeKantor);
-    updateBadge('badge-gabungan', activeGabungan);
+    updateBadge('badge-semua', activeSemua); updateBadge('badge-lapangan', activeLapangan);
+    updateBadge('badge-kantor', activeKantor); updateBadge('badge-gabungan', activeGabungan);
 
     setTimeout(function(){
       var activeBtn = document.querySelector('.seg-btn[data-active="true"]');
@@ -533,7 +435,6 @@
   function updateMarkerTooltip(marker, p, gpsOnline, kompAktif){
     if (gpsOnline || kompAktif){
       var content = '<div class="marker-name">' + p.nama + '</div>';
-      
       var isPerencana = (p.sumber === 'lapangan+kantor' || p.sumber === 'kantor');
       var locStyle = isPerencana ? ' style="color:#8FA4FF;"' : '';
 
@@ -541,55 +442,37 @@
         if (p.gps.alamat && p.gps.alamat !== 'Unknown' && p.gps.alamat !== '-' && !p.gps.isAutoGeocoded) {
           content += '<div class="marker-loc"' + locStyle + '>' + p.gps.alamat + '</div>';
         }
-      } else if (kompAktif) {
-        content += '<div class="marker-loc"' + locStyle + '>Kantor</div>';
-      }
+      } else if (kompAktif) { content += '<div class="marker-loc"' + locStyle + '>Kantor</div>'; }
       
-      if (marker.getTooltip()){
-        marker.setTooltipContent(content);
-      } else {
-        marker.bindTooltip(content, {
-          permanent: true, direction: 'right', offset: [12, 0], className: 'marker-label'
-        });
-      }
-    } else if (marker.getTooltip()){
-      marker.unbindTooltip();
-    }
+      if (marker.getTooltip()) marker.setTooltipContent(content);
+      else marker.bindTooltip(content, { permanent: true, direction: 'right', offset: [12, 0], className: 'marker-label' });
+    } else if (marker.getTooltip()){ marker.unbindTooltip(); }
   }
 
   function renderMap(people, isFirst){
-    var seen = {};
-    var bounds = [];
+    var seen = {}, bounds = [];
     people.forEach(function(p){
       var gpsOnline = !!(p.gps && p.gps.online && p.gps.lat != null);
       var kompAktif = !!(p.komputer && p.komputer.aktifDetik > 0);
       var hasGpsCoord = !!(p.gps && p.gps.lat != null);
       var latlng = null;
-      if (kompAktif && !gpsOnline) { latlng = [KANTOR_LAT, KANTOR_LNG]; }
-      else if (hasGpsCoord) { latlng = [p.gps.lat, p.gps.lng]; }
+      if (kompAktif && !gpsOnline) { latlng = [KANTOR_LAT, KANTOR_LNG]; } else if (hasGpsCoord) { latlng = [p.gps.lat, p.gps.lng]; }
 
       if (!latlng) return;
 
       var marker = markerByName[p.nama];
-      if (marker){
-        marker.setLatLng(latlng);
-        marker.setIcon(makeIcon(gpsOnline, kompAktif, p.sumber));
-      } else {
-        marker = L.marker(latlng, { icon: makeIcon(gpsOnline, kompAktif, p.sumber) }).addTo(map);
-        markerByName[p.nama] = marker;
-      }
+      if (marker){ marker.setLatLng(latlng); marker.setIcon(makeIcon(gpsOnline, kompAktif, p.sumber)); } 
+      else { marker = L.marker(latlng, { icon: makeIcon(gpsOnline, kompAktif, p.sumber) }).addTo(map); markerByName[p.nama] = marker; }
       
-      if (p.nama === selectedName) { marker.setZIndexOffset(1000); } 
-      else { marker.setZIndexOffset(0); }
-
+      if (p.nama === selectedName) { marker.setZIndexOffset(1000); } else { marker.setZIndexOffset(0); }
       updateMarkerTooltip(marker, p, gpsOnline, kompAktif);
       seen[p.nama] = true;
       if (gpsOnline || kompAktif) bounds.push(latlng);
       
       setTimeout(function() {
         if (marker.getTooltip() && marker.getTooltip().getElement()) {
-          if (p.nama === selectedName) { marker.getTooltip().getElement().classList.add('tooltip-on-top'); } 
-          else { marker.getTooltip().getElement().classList.remove('tooltip-on-top'); }
+          if (p.nama === selectedName) marker.getTooltip().getElement().classList.add('tooltip-on-top');
+          else marker.getTooltip().getElement().classList.remove('tooltip-on-top');
         }
       }, 0);
     });
@@ -600,8 +483,50 @@
     if (isFirst && bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
   }
 
+  // ==== FUNGSI RENDER NONGKRONG GLOBAL ====
+  function renderNongkrong(nongkrongList) {
+    // Bersihkan blob lama
+    globalHotspotLayers.forEach(function(l){ map.removeLayer(l); });
+    globalHotspotLayers = [];
+
+    if (!nongkrongList) return;
+
+    nongkrongList.forEach(function(s) {
+      // 1. OTO-HAPUS JIKA KODE LEGAL/AMAN
+      if (s.kode && (s.kode.trim().toUpperCase() === 'LEGAL' || s.kode.trim().toUpperCase() === 'AMAN')) {
+        return; // Jangan digambar di peta
+      }
+
+      var durasiDetik = (s.durasiMenit || 0) * 60;
+      var t = Math.min(durasiDetik / (8 * 3600), 1); 
+      var radius = 40 + (t * 120);
+      var fillOpacity = 0.25 + (t * 0.4);
+      
+      // 2. LOGIKA WARNA (Merah jika gerombolan / lebih dari 1 kunjungan)
+      var isBahaya = (s.totalKunjungan > 1) || (String(s.personil).indexOf(',') > -1);
+      var warna = isBahaya ? 'var(--red)' : 'var(--amber)'; 
+
+      var blob = L.circle([s.lat, s.lng], {
+        radius: radius, color: warna, weight: 1.5, opacity: 0.6,
+        fillColor: warna, fillOpacity: fillOpacity,
+        className: isBahaya && !reduceMotion ? 'blob-danger' : ''
+      }).addTo(map);
+
+      // Tooltip pintar saat di-hover
+      var namaTampil = s.namaLokasi ? s.namaLokasi : 'Lokasi Curiga';
+      var tooltipHTML = '<div style="font-family:var(--font-display); line-height:1.5;">' +
+        '<b style="font-size:13.5px; color:' + warna + '; display:block; margin-bottom:4px;">' + namaTampil + '</b>' +
+        '<div style="font-size:11.5px;"><span style="color:var(--ink-dim)">Personil:</span> <b>' + s.personil + '</b></div>' +
+        '<div style="font-size:11.5px;"><span style="color:var(--ink-dim)">Total:</span> <b>' + s.totalKunjungan + 'x kunjungan (' + s.durasiMenit + ' mnt)</b></div>' +
+        '</div>';
+
+      blob.bindTooltip(tooltipHTML, {className: 'marker-label', direction: 'top'});
+      blob.bringToBack();
+      globalHotspotLayers.push(blob);
+    });
+  }
+
   var routeLayer = null;
-  var hotspotLayers = [];
 
   function selectPerson(nama){
     selectedName = nama;
@@ -609,32 +534,28 @@
       var m = markerByName[key];
       if(m) {
         m.setZIndexOffset(0);
-        if (m.getTooltip() && m.getTooltip().getElement()) { m.getTooltip().getElement().classList.remove('tooltip-on-top'); }
+        if (m.getTooltip() && m.getTooltip().getElement()) m.getTooltip().getElement().classList.remove('tooltip-on-top');
       }
     });
 
     var marker = markerByName[nama];
     if (marker){
       marker.setZIndexOffset(1000); 
-      if (marker.getTooltip() && marker.getTooltip().getElement()) { marker.getTooltip().getElement().classList.add('tooltip-on-top'); }
+      if (marker.getTooltip() && marker.getTooltip().getElement()) marker.getTooltip().getElement().classList.add('tooltip-on-top');
     }
     document.querySelectorAll('.person').forEach(function(el){ el.classList.toggle('selected', el.dataset.nama === nama); });
 
     if (routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
-    hotspotLayers.forEach(function(l){ map.removeLayer(l); });
-    hotspotLayers = [];
-    var p = allPeople.find(function(x){ return x.nama === nama; });
     
-    if (!p) return; // Jika p null, stop disini (misal saat reset)
+    var p = allPeople.find(function(x){ return x.nama === nama; });
+    if (!p) return; 
 
     var lagiOnline = !!(p.gps && p.gps.online);
     var ruteHariIni = false;
     if (p.gps && p.gps.waktu) {
       var gpsDate = new Date(p.gps.waktu.replace(' ', 'T'));
       var todayDate = new Date();
-      if (gpsDate.getDate() === todayDate.getDate() && 
-          gpsDate.getMonth() === todayDate.getMonth() && 
-          gpsDate.getFullYear() === todayDate.getFullYear()) {
+      if (gpsDate.getDate() === todayDate.getDate() && gpsDate.getMonth() === todayDate.getMonth() && gpsDate.getFullYear() === todayDate.getFullYear()) {
           ruteHariIni = true;
       }
     }
@@ -642,9 +563,7 @@
     var adaJalur = !!(p.gps && p.gps.jalur && p.gps.jalur.length > 1 && ruteHariIni);
 
     if (adaJalur){
-      var warnaRute = lagiOnline
-        ? ((p.sumber === 'lapangan+kantor' || p.sumber === 'kantor') ? '#5A78FF' : '#34E27E')
-        : '#B8C2DE';
+      var warnaRute = lagiOnline ? ((p.sumber === 'lapangan+kantor' || p.sumber === 'kantor') ? '#5A78FF' : '#34E27E') : '#B8C2DE';
       routeLayer = L.polyline(p.gps.jalur, {
         color: warnaRute, weight: 3, opacity: lagiOnline ? 0.85 : 0.75, lineCap: 'round',
         className: reduceMotion ? '' : 'route-flow'
@@ -659,47 +578,20 @@
     } else if (marker){
       map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 15), { duration: reduceMotion ? 0 : 1.1 });
     }
-
-    // Blob amber di titik-titik "nongkrong lama" (>=1 jam, jam kerja) - dari
-    // analisis GPS mentah, jalan baik di lokasi proyek terdaftar maupun bukan.
-    if (ruteHariIni && p.gps && p.gps.jalur && p.gps.jalur.length){
-      var titikNongkrong = deteksiTitikNongkrong(p.gps.jalur, 100, 3600);
-      titikNongkrong.forEach(function(s){
-        var t = Math.min(s.durasiDetik / (8 * 3600), 1); // skala penuh di 8 jam+
-        var radius = 40 + t * 160;
-        var fillOpacity = 0.22 + t * 0.45;
-        var blob = L.circle([s.lat, s.lng], {
-          radius: radius, color: '#FFC24B', weight: 1, opacity: 0.4,
-          fillColor: '#FFC24B', fillOpacity: fillOpacity
-        }).addTo(map);
-        blob.bringToBack();
-        hotspotLayers.push(blob);
-      });
-    }
   }
 
-  // FUNGSI BARU: Menampilkan zoom-out keseluruhan di peta
   function showAllActive(activeMapUsers) {
     selectedName = null;
-    
-    // Reset tooltip ke bawah
     Object.keys(markerByName).forEach(function(key){
       var m = markerByName[key];
       if(m) {
         m.setZIndexOffset(0);
-        if (m.getTooltip() && m.getTooltip().getElement()) { 
-           m.getTooltip().getElement().classList.remove('tooltip-on-top'); 
-        }
+        if (m.getTooltip() && m.getTooltip().getElement()) m.getTooltip().getElement().classList.remove('tooltip-on-top');
       }
     });
 
-    document.querySelectorAll('.person').forEach(function(el){ 
-        el.classList.remove('selected'); 
-    });
-
+    document.querySelectorAll('.person').forEach(function(el){ el.classList.remove('selected'); });
     if (routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
-    hotspotLayers.forEach(function(l){ map.removeLayer(l); });
-    hotspotLayers = [];
 
     var activeBounds = [];
     activeMapUsers.forEach(function(p){
@@ -727,8 +619,7 @@
       var ai = isAktif(a) ? 1 : 0, bi = isAktif(b) ? 1 : 0;
       if (bi !== ai) return bi - ai; 
       if (ai === 1) { 
-        var timeA = lastOnlineTime[a.nama] || 0;
-        var timeB = lastOnlineTime[b.nama] || 0;
+        var timeA = lastOnlineTime[a.nama] || 0, timeB = lastOnlineTime[b.nama] || 0;
         if (timeB !== timeA) return timeB - timeA; 
       }
       return a.nama.localeCompare(b.nama); 
@@ -740,32 +631,23 @@
     }
 
     el.innerHTML = filtered.map(function(p, i){
-      var t = tagInfo(p.sumber);
-      var online = p.gps ? p.gps.online : null;
+      var t = tagInfo(p.sumber), online = p.gps ? p.gps.online : null;
       var kompAktif = !!(p.komputer && p.komputer.aktifDetik > 0);
       var isPerencana = (p.sumber === 'lapangan+kantor' || p.sumber === 'kantor');
       var dotCls = 'off';
-      if (online || kompAktif) {
-        dotCls = isPerencana ? 'komp' : 'ok';
-      }
+      if (online || kompAktif) { dotCls = isPerencana ? 'komp' : 'ok'; }
       var hasLoc = !!(p.gps && p.gps.lat != null) || kompAktif; 
 
       var isNewArrival = highlightQueue[p.nama];
       if (isNewArrival) delete highlightQueue[p.nama]; 
 
-      var gpsLine = p.gps
-        ? '<div class="pmeta">GPS &middot; <b>' + (p.gps.alamat || (p.gps.online ? 'Online' : 'Offline')) + '</b>' +
-          (p.gps.waktu ? ' <span class="mono">' + p.gps.waktu + '</span>' : '') + '</div>'
-        : '';
-
+      var gpsLine = p.gps ? '<div class="pmeta">GPS &middot; <b>' + (p.gps.alamat || (p.gps.online ? 'Online' : 'Offline')) + '</b>' + (p.gps.waktu ? ' <span class="mono">' + p.gps.waktu + '</span>' : '') + '</div>' : '';
       var jadwalLine = '';
       if (p.sumber === 'lapangan+kantor' && ((p.jadwalGps && p.jadwalGps.length) || p.totalKantorHariIni)) {
         var segLapangan = (p.jadwalGps || []).map(function(j){
-          var s = pctFromIso(j.mulai), e = pctFromIso(j.selesai);
-          var w = Math.max(e - s, 0.3);
+          var s = pctFromIso(j.mulai), e = pctFromIso(j.selesai), w = Math.max(e - s, 0.3);
           return '<div class="seg-lapangan" style="left:' + s.toFixed(2) + '%;width:' + w.toFixed(2) + '%"></div>';
         }).join('');
-
         var segKantor = '';
         if (p.intensitasKantorPerJam) {
           var maxJam = Math.max.apply(null, p.intensitasKantorPerJam);
@@ -776,30 +658,21 @@
             return '<div class="seg-kantor" style="left:' + s.toFixed(2) + '%;width:' + w.toFixed(2) + '%;opacity:' + opacity + '"></div>';
           }).join('');
         }
-
-        var totalLapanganKantor = (p.totalKantorHariIni || 0) +
-          totalDetikSegmen(p.jadwalGps, ['Kantor', '304ghnsR']);
-
-        jadwalLine = '<div class="pmeta">Jam aktif lapangan &amp; kantor &middot; <b>' + formatJam(totalLapanganKantor) + '</b></div>' +
-          '<div class="jadwalbar-gab"><div class="lane lane-lapangan">' + segLapangan + '</div><div class="lane lane-kantor">' + segKantor + '</div></div>';
+        var totalLapanganKantor = (p.totalKantorHariIni || 0) + totalDetikSegmen(p.jadwalGps, ['Kantor', '304ghnsR']);
+        jadwalLine = '<div class="pmeta">Jam aktif lapangan &amp; kantor &middot; <b>' + formatJam(totalLapanganKantor) + '</b></div>' + '<div class="jadwalbar-gab"><div class="lane lane-lapangan">' + segLapangan + '</div><div class="lane lane-kantor">' + segKantor + '</div></div>';
       } else if (p.jadwalGps && p.jadwalGps.length) {
         var segs = p.jadwalGps.map(function(j){
-          var s = pctFromIso(j.mulai), e = pctFromIso(j.selesai);
-          var w = Math.max(e - s, 0.3);
+          var s = pctFromIso(j.mulai), e = pctFromIso(j.selesai), w = Math.max(e - s, 0.3);
           return '<div class="jadwalbar-seg" style="left:' + s.toFixed(2) + '%;width:' + w.toFixed(2) + '%"></div>';
         }).join('');
-        var totalLapangan = totalDetikSegmen(p.jadwalGps, null);
-        jadwalLine = '<div class="pmeta">Jam aktif lapangan &middot; <b>' + formatJam(totalLapangan) + '</b></div><div class="jadwalbar">' + segs + '</div>';
+        jadwalLine = '<div class="pmeta">Jam aktif lapangan &middot; <b>' + formatJam(totalDetikSegmen(p.jadwalGps, null)) + '</b></div><div class="jadwalbar">' + segs + '</div>';
       }
 
       var kompLine = '';
       if (p.komputer && p.sumber !== 'lapangan+kantor'){
-        var aktif = p.komputer.aktifDetik || 0, idle = p.komputer.idleDetik || 0;
-        var totalDet = aktif + idle;
-        var pctAktif = totalDet > 0 ? (aktif / totalDet * 100) : 0;
-        var pctIdle = 100 - pctAktif;
-        kompLine = '<div class="pmeta">Komputer &middot; aktif <b>' + formatJam(aktif) + '</b>, idle ' + formatJam(idle) + '</div>' +
-          '<div class="actbar"><div class="fill-active" style="width:' + pctAktif.toFixed(1) + '%"></div><div class="fill-idle" style="width:' + pctIdle.toFixed(1) + '%"></div></div>';
+        var aktif = p.komputer.aktifDetik || 0, idle = p.komputer.idleDetik || 0, totalDet = aktif + idle;
+        var pctAktif = totalDet > 0 ? (aktif / totalDet * 100) : 0, pctIdle = 100 - pctAktif;
+        kompLine = '<div class="pmeta">Komputer &middot; aktif <b>' + formatJam(aktif) + '</b>, idle ' + formatJam(idle) + '</div>' + '<div class="actbar"><div class="fill-active" style="width:' + pctAktif.toFixed(1) + '%"></div><div class="fill-idle" style="width:' + pctIdle.toFixed(1) + '%"></div></div>';
       }
 
       var rowStyle = (animate && !reduceMotion) ? 'animation-delay:' + Math.min(i * 35, 480) + 'ms' : 'opacity:1;transform:none;animation:none';
@@ -813,26 +686,21 @@
   }
 
   function positionSegHighlight(btn){
-    var wrap = document.getElementById('segmented');
-    var hl = document.getElementById('segHighlight');
-    var wrapBox = wrap.getBoundingClientRect();
-    var btnBox = btn.getBoundingClientRect();
-    hl.style.left = (btnBox.left - wrapBox.left) + 'px';
-    hl.style.width = btnBox.width + 'px';
+    var wrap = document.getElementById('segmented'), hl = document.getElementById('segHighlight');
+    var wrapBox = wrap.getBoundingClientRect(), btnBox = btn.getBoundingClientRect();
+    hl.style.left = (btnBox.left - wrapBox.left) + 'px'; hl.style.width = btnBox.width + 'px';
   }
 
-  var geocodeCache = {};
-  var geocodeBusy = false;
+  var geocodeCache = {}, geocodeBusy = false;
   function geocodeKey(lat, lng){ return lat.toFixed(4) + ',' + lng.toFixed(4); }
   function reverseGeocode(lat, lng, callback){
     var key = geocodeKey(lat, lng);
     if (geocodeCache[key]){ callback(geocodeCache[key]); return; }
-    var url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng + '&zoom=17&addressdetails=1';
-    fetch(url).then(function(r){ return r.json(); }).then(function(data){
+    fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng + '&zoom=17&addressdetails=1')
+      .then(function(r){ return r.json(); }).then(function(data){
         var a = data.address || {};
         var label = a.road || a.pedestrian || a.neighbourhood || a.suburb || a.village || null;
-        if (label) geocodeCache[key] = label;
-        callback(label);
+        if (label) geocodeCache[key] = label; callback(label);
       }).catch(function(){ callback(null); });
   }
 
@@ -867,11 +735,10 @@
   }
   function masihRelevan(p){
     var last = aktivitasTerakhir(p);
-    if (!last) return false; 
-    return (Date.now() - last.getTime()) <= SEBULAN_MS;
+    if (!last) return false; return (Date.now() - last.getTime()) <= SEBULAN_MS;
   }
 
-  // ============ LOGIKA SLIDESHOW DENGAN FULL VIEW ============
+  // ============ LOGIKA SLIDESHOW ============
   function scheduleNextSlide(delay) {
     if (isSlideshowStopped) return;
     if (slideshowTimer) clearTimeout(slideshowTimer);
@@ -881,37 +748,28 @@
   function playSlideshowStep() {
     if (isSlideshowStopped) return;
     var activeMapUsers = allPeople.filter(function(p){
-      var gpsOnline = !!(p.gps && p.gps.online && p.gps.lat != null);
-      var kompAktif = !!(p.komputer && p.komputer.aktifDetik > 0);
-      return gpsOnline || kompAktif;
+      return !!(p.gps && p.gps.online && p.gps.lat != null) || !!(p.komputer && p.komputer.aktifDetik > 0);
     });
     
-    if (!activeMapUsers.length) {
-       scheduleNextSlide(SLIDESHOW_SPEED_MS);
-       return;
-    }
+    if (!activeMapUsers.length) { scheduleNextSlide(SLIDESHOW_SPEED_MS); return; }
 
     activeMapUsers.sort(function(a, b){
-      var timeA = lastOnlineTime[a.nama] || 0;
-      var timeB = lastOnlineTime[b.nama] || 0;
+      var timeA = lastOnlineTime[a.nama] || 0, timeB = lastOnlineTime[b.nama] || 0;
       if (timeB !== timeA) return timeB - timeA;
       return a.nama.localeCompare(b.nama);
     });
 
-    // Jika index mencapai atau melebihi jumlah orang, panggil mode Full View
     if (slideshowIndex >= activeMapUsers.length) {
       showAllActive(activeMapUsers);
-      slideshowIndex = 0; // Reset ke orang pertama untuk ronde selanjutnya
-      scheduleNextSlide(FULL_VIEW_DELAY_MS); // Tunggu 10 detik saat mode Full View
+      slideshowIndex = 0; 
+      scheduleNextSlide(FULL_VIEW_DELAY_MS); 
     } else {
-      // Mode sorot personil satu per satu
       var targetPerson = activeMapUsers[slideshowIndex];
       isProgrammaticMove = true;
       selectPerson(targetPerson.nama);
       setTimeout(function(){ isProgrammaticMove = false; }, 1500);
-      
       slideshowIndex++;
-      scheduleNextSlide(SLIDESHOW_SPEED_MS); // Tunggu 7 detik
+      scheduleNextSlide(SLIDESHOW_SPEED_MS); 
     }
   }
 
@@ -925,24 +783,16 @@
     isSlideshowStopped = true;
     if (slideshowTimer) clearTimeout(slideshowTimer);
     if (resumeTimer) clearTimeout(resumeTimer);
-    
-    resumeTimer = setTimeout(function() {
-      startSlideshow();
-    }, RESUME_DELAY_MS);
+    resumeTimer = setTimeout(function() { startSlideshow(); }, RESUME_DELAY_MS);
   }
 
   function prosesDataUI(json, isFirst) {
     allPeople = (json.data || []).filter(masihRelevan);
     allPeople.forEach(function(p){
       var currentActive = isAktif(p);
-      if (isFirst) {
-        wasActiveStatus[p.nama] = currentActive;
-        lastOnlineTime[p.nama] = 0; 
-      } else {
-        if (currentActive && !wasActiveStatus[p.nama]) {
-          lastOnlineTime[p.nama] = Date.now();
-          highlightQueue[p.nama] = true; 
-        }
+      if (isFirst) { wasActiveStatus[p.nama] = currentActive; lastOnlineTime[p.nama] = 0; } 
+      else {
+        if (currentActive && !wasActiveStatus[p.nama]) { lastOnlineTime[p.nama] = Date.now(); highlightQueue[p.nama] = true; }
         wasActiveStatus[p.nama] = currentActive;
       }
     });
@@ -950,6 +800,7 @@
     renderStats(allPeople, isFirst);
     renderMap(allPeople, isFirst);
     renderRoster(isFirst);
+    renderNongkrong(json.nongkrong); // Gambar database nongkrong ke peta
     isiAlamatOtomatis(allPeople);
   }
 
@@ -960,69 +811,45 @@
     if (!hasLoadedOnce) {
       var savedData = localStorage.getItem(CACHE_KEY);
       if (savedData) {
-        try {
-          var jsonCache = JSON.parse(savedData);
-          prosesDataUI(jsonCache, true);
-          document.getElementById('updatedAt').textContent = 'menyinkronkan data terbaru...';
-        } catch(e) {}
-      } else {
-        document.getElementById('roster').innerHTML = '<div class="state">Memuat data monitoring…</div>';
-      }
+        try { var jsonCache = JSON.parse(savedData); prosesDataUI(jsonCache, true); document.getElementById('updatedAt').textContent = 'menyinkronkan data terbaru...'; } catch(e) {}
+      } else { document.getElementById('roster').innerHTML = '<div class="state">Memuat data monitoring…</div>'; }
     }
 
     fetch(API_URL)
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function(json){
         localStorage.setItem(CACHE_KEY, JSON.stringify(json));
-        var isFirst = !hasLoadedOnce;
-        hasLoadedOnce = true;
-        
+        var isFirst = !hasLoadedOnce; hasLoadedOnce = true;
         prosesDataUI(json, isFirst);
-
-        if (isFirst && !isSlideshowStopped) {
-          setTimeout(function() { startSlideshow(); }, 2000); 
-        }
+        if (isFirst && !isSlideshowStopped) setTimeout(function() { startSlideshow(); }, 2000); 
       })
       .catch(function(err){
-        if (!hasLoadedOnce){
-          document.getElementById('roster').innerHTML = '<div class="state"><b>Gagal memuat data</b>' + err.message + '.</div>';
-          document.getElementById('updatedAt').textContent = 'gagal memuat';
-        } else {
-          document.getElementById('updatedAt').textContent = 'gagal memperbarui (' + err.message + ')';
-        }
+        if (!hasLoadedOnce){ document.getElementById('roster').innerHTML = '<div class="state"><b>Gagal memuat data</b>' + err.message + '.</div>'; document.getElementById('updatedAt').textContent = 'gagal memuat'; } 
+        else { document.getElementById('updatedAt').textContent = 'gagal memperbarui (' + err.message + ')'; }
       })
       .finally(function(){ btn.classList.remove('spinning'); });
   }
 
   document.getElementById('refreshBtn').addEventListener('click', muat);
-  document.getElementById('searchInput').addEventListener('input', function(e){
-    searchTerm = e.target.value.trim().toLowerCase();
-    renderRoster(true);
-  });
+  document.getElementById('searchInput').addEventListener('input', function(e){ searchTerm = e.target.value.trim().toLowerCase(); renderRoster(true); });
   
   document.getElementById('roster').addEventListener('click', function(e){
     var row = e.target.closest('.person.clickable');
-    if (row) {
-      pauseSlideshow(); 
-      selectPerson(row.dataset.nama);
-    }
+    if (row) { pauseSlideshow(); selectPerson(row.dataset.nama); }
   });
 
   document.querySelectorAll('.seg-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
       document.querySelectorAll('.seg-btn').forEach(function(b){ b.dataset.active = 'false'; });
-      btn.dataset.active = 'true';
-      activeFilter = btn.dataset.filter;
-      positionSegHighlight(btn);
-      renderRoster(true);
+      btn.dataset.active = 'true'; activeFilter = btn.dataset.filter;
+      positionSegHighlight(btn); renderRoster(true);
     });
   });
 
   window.addEventListener('load', function(){ positionSegHighlight(document.querySelector('.seg-btn[data-active="true"]')); });
   window.addEventListener('resize', function(){ positionSegHighlight(document.querySelector('.seg-btn[data-active="true"]')); });
 
-  muat();
-  setInterval(muat, REFRESH_INTERVAL_MS);
+  muat(); setInterval(muat, REFRESH_INTERVAL_MS);
 </script>
 </body>
 </html>
