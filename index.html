@@ -187,7 +187,7 @@
     transition: all 0.2s ease;
   }
   .seg-btn[data-active="true"] .badge {
-    background: var(--void); /* Berubah gelap saat tombol tersorot teal */
+    background: var(--void); 
     color: var(--teal);
     border-color: transparent;
   }
@@ -309,7 +309,6 @@
     <div class="seg-row">
       <div class="segmented" id="segmented">
         <div class="seg-highlight" id="segHighlight"></div>
-        <!-- TEMPAT BADGE NOTIFIKASI DITAMBAHKAN DI SINI -->
         <button class="seg-btn" data-filter="semua" data-active="true">Semua <span class="badge hidden" id="badge-semua">0</span></button>
         <button class="seg-btn" data-filter="lapangan">Pengawas <span class="badge hidden" id="badge-lapangan">0</span></button>
         <button class="seg-btn" data-filter="lapangan+kantor">Perencana <span class="badge hidden" id="badge-gabungan">0</span></button>
@@ -337,10 +336,6 @@
     maxZoom: 19
   }).addTo(map);
 
-  // Interaksi manual di peta (klik, zoom, geser) jeda slideshow dulu -
-  // pauseSlideshow() sudah otomatis lanjut lagi sendiri setelah RESUME_DELAY_MS.
-  // isProgrammaticMove membedakan flyTo yang dipicu slideshow sendiri (jangan
-  // ikut jeda) dari interaksi asli oleh user.
   var isProgrammaticMove = false;
   map.on('click zoomstart dragstart', function(){
     if (isProgrammaticMove) return;
@@ -362,8 +357,9 @@
   var resumeTimer = null; 
   var slideshowIndex = 0;
   var isSlideshowStopped = false;
-  var SLIDESHOW_SPEED_MS = 7000; 
-  var RESUME_DELAY_MS = 60000; 
+  var SLIDESHOW_SPEED_MS = 7000;  // 7 detik per orang
+  var FULL_VIEW_DELAY_MS = 10000; // 10 detik saat view semua orang
+  var RESUME_DELAY_MS = 60000;    // 1 menit jeda pause
 
   function formatJam(detik){
     if (detik == null || isNaN(detik)) return '–';
@@ -424,7 +420,7 @@
       });
     }
     // Online: warna ikut peran - hijau Pengawas, biru Perencana.
-    var perencana = (sumber === 'lapangan+kantor');
+    var perencana = (sumber === 'lapangan+kantor' || sumber === 'kantor');
     var dotCls = perencana ? 'komp-online' : 'online';
     var pulseCls = perencana ? 'komp-pulse' : '';
     return L.divIcon({
@@ -459,14 +455,13 @@
       if (animate) animateCount(el, totals[id]); else el.textContent = totals[id];
     });
 
-    // --- LOGIKA BADGE NOTIFIKASI (MENGHITUNG PERSONIL AKTIF) ---
     var activeSemua = 0, activeLapangan = 0, activeKantor = 0, activeGabungan = 0;
     people.forEach(function(p){
       if (isAktif(p)) {
         activeSemua++;
         if (p.sumber === 'lapangan+kantor') activeGabungan++;
         else if (p.sumber === 'kantor') activeKantor++;
-        else activeLapangan++; // Default ke lapangan
+        else activeLapangan++; 
       }
     });
 
@@ -484,7 +479,6 @@
     updateBadge('badge-kantor', activeKantor);
     updateBadge('badge-gabungan', activeGabungan);
 
-    // Penyesuaian ukuran highlight karena kehadiran badge
     setTimeout(function(){
       var activeBtn = document.querySelector('.seg-btn[data-active="true"]');
       if (activeBtn) positionSegHighlight(activeBtn);
@@ -494,13 +488,18 @@
   function updateMarkerTooltip(marker, p, gpsOnline, kompAktif){
     if (gpsOnline || kompAktif){
       var content = '<div class="marker-name">' + p.nama + '</div>';
+      
+      var isPerencana = (p.sumber === 'lapangan+kantor' || p.sumber === 'kantor');
+      var locStyle = isPerencana ? ' style="color:#8FA4FF;"' : '';
+
       if (gpsOnline) {
         if (p.gps.alamat && p.gps.alamat !== 'Unknown' && p.gps.alamat !== '-' && !p.gps.isAutoGeocoded) {
-          content += '<div class="marker-loc">' + p.gps.alamat + '</div>';
+          content += '<div class="marker-loc"' + locStyle + '>' + p.gps.alamat + '</div>';
         }
       } else if (kompAktif) {
-        content += '<div class="marker-loc" style="color:#8FA4FF;">Kantor</div>';
+        content += '<div class="marker-loc"' + locStyle + '>Kantor</div>';
       }
+      
       if (marker.getTooltip()){
         marker.setTooltipContent(content);
       } else {
@@ -577,12 +576,26 @@
 
     if (routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
     var p = allPeople.find(function(x){ return x.nama === nama; });
-    var lagiOnline = !!(p && p.gps && p.gps.online);
-    var adaJalur = !!(p && p.gps && p.gps.jalur && p.gps.jalur.length > 1);
+    
+    if (!p) return; // Jika p null, stop disini (misal saat reset)
+
+    var lagiOnline = !!(p.gps && p.gps.online);
+    var ruteHariIni = false;
+    if (p.gps && p.gps.waktu) {
+      var gpsDate = new Date(p.gps.waktu.replace(' ', 'T'));
+      var todayDate = new Date();
+      if (gpsDate.getDate() === todayDate.getDate() && 
+          gpsDate.getMonth() === todayDate.getMonth() && 
+          gpsDate.getFullYear() === todayDate.getFullYear()) {
+          ruteHariIni = true;
+      }
+    }
+    
+    var adaJalur = !!(p.gps && p.gps.jalur && p.gps.jalur.length > 1 && ruteHariIni);
 
     if (adaJalur){
       var warnaRute = lagiOnline
-        ? ((p.sumber === 'lapangan+kantor') ? '#5A78FF' : '#34E27E')
+        ? ((p.sumber === 'lapangan+kantor' || p.sumber === 'kantor') ? '#5A78FF' : '#34E27E')
         : '#B8C2DE';
       routeLayer = L.polyline(p.gps.jalur, {
         color: warnaRute, weight: 3, opacity: lagiOnline ? 0.85 : 0.75, lineCap: 'round',
@@ -594,10 +607,43 @@
     }
 
     if (!lagiOnline && adaJalur){
-      // Offline: perlihatkan seluruh bentang rute yang pernah dilalui hari itu.
       map.flyToBounds(routeLayer.getBounds(), { padding: [50, 50], maxZoom: 16, duration: reduceMotion ? 0 : 1.1 });
     } else if (marker){
       map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 15), { duration: reduceMotion ? 0 : 1.1 });
+    }
+  }
+
+  // FUNGSI BARU: Menampilkan zoom-out keseluruhan di peta
+  function showAllActive(activeMapUsers) {
+    selectedName = null;
+    
+    // Reset tooltip ke bawah
+    Object.keys(markerByName).forEach(function(key){
+      var m = markerByName[key];
+      if(m) {
+        m.setZIndexOffset(0);
+        if (m.getTooltip() && m.getTooltip().getElement()) { 
+           m.getTooltip().getElement().classList.remove('tooltip-on-top'); 
+        }
+      }
+    });
+
+    document.querySelectorAll('.person').forEach(function(el){ 
+        el.classList.remove('selected'); 
+    });
+
+    if (routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
+
+    var activeBounds = [];
+    activeMapUsers.forEach(function(p){
+       var m = markerByName[p.nama];
+       if (m) activeBounds.push(m.getLatLng());
+    });
+
+    if (activeBounds.length > 0) {
+       isProgrammaticMove = true;
+       map.flyToBounds(activeBounds, { padding: [50, 50], maxZoom: 15, duration: reduceMotion ? 0 : 1.2 });
+       setTimeout(function(){ isProgrammaticMove = false; }, 1500); 
     }
   }
 
@@ -630,7 +676,11 @@
       var t = tagInfo(p.sumber);
       var online = p.gps ? p.gps.online : null;
       var kompAktif = !!(p.komputer && p.komputer.aktifDetik > 0);
-      var dotCls = online === true ? 'ok' : (kompAktif ? 'komp' : 'off');
+      var isPerencana = (p.sumber === 'lapangan+kantor' || p.sumber === 'kantor');
+      var dotCls = 'off';
+      if (online || kompAktif) {
+        dotCls = isPerencana ? 'komp' : 'ok';
+      }
       var hasLoc = !!(p.gps && p.gps.lat != null) || kompAktif; 
 
       var isNewArrival = highlightQueue[p.nama];
@@ -754,6 +804,13 @@
     return (Date.now() - last.getTime()) <= SEBULAN_MS;
   }
 
+  // ============ LOGIKA SLIDESHOW DENGAN FULL VIEW ============
+  function scheduleNextSlide(delay) {
+    if (isSlideshowStopped) return;
+    if (slideshowTimer) clearTimeout(slideshowTimer);
+    slideshowTimer = setTimeout(playSlideshowStep, delay);
+  }
+
   function playSlideshowStep() {
     if (isSlideshowStopped) return;
     var activeMapUsers = allPeople.filter(function(p){
@@ -761,7 +818,11 @@
       var kompAktif = !!(p.komputer && p.komputer.aktifDetik > 0);
       return gpsOnline || kompAktif;
     });
-    if (!activeMapUsers.length) return;
+    
+    if (!activeMapUsers.length) {
+       scheduleNextSlide(SLIDESHOW_SPEED_MS);
+       return;
+    }
 
     activeMapUsers.sort(function(a, b){
       var timeA = lastOnlineTime[a.nama] || 0;
@@ -770,28 +831,36 @@
       return a.nama.localeCompare(b.nama);
     });
 
-    slideshowIndex = slideshowIndex % activeMapUsers.length;
-    var targetPerson = activeMapUsers[slideshowIndex];
-    isProgrammaticMove = true;
-    selectPerson(targetPerson.nama);
-    map.once('moveend', function(){ isProgrammaticMove = false; });
-    slideshowIndex++;
+    // Jika index mencapai atau melebihi jumlah orang, panggil mode Full View
+    if (slideshowIndex >= activeMapUsers.length) {
+      showAllActive(activeMapUsers);
+      slideshowIndex = 0; // Reset ke orang pertama untuk ronde selanjutnya
+      scheduleNextSlide(FULL_VIEW_DELAY_MS); // Tunggu 10 detik saat mode Full View
+    } else {
+      // Mode sorot personil satu per satu
+      var targetPerson = activeMapUsers[slideshowIndex];
+      isProgrammaticMove = true;
+      selectPerson(targetPerson.nama);
+      setTimeout(function(){ isProgrammaticMove = false; }, 1500);
+      
+      slideshowIndex++;
+      scheduleNextSlide(SLIDESHOW_SPEED_MS); // Tunggu 7 detik
+    }
   }
 
   function startSlideshow() {
     isSlideshowStopped = false;
-    if (slideshowTimer) clearInterval(slideshowTimer);
     if (resumeTimer) clearTimeout(resumeTimer);
-    slideshowTimer = setInterval(playSlideshowStep, SLIDESHOW_SPEED_MS);
+    playSlideshowStep(); 
   }
 
   function pauseSlideshow() {
     isSlideshowStopped = true;
-    if (slideshowTimer) clearInterval(slideshowTimer);
+    if (slideshowTimer) clearTimeout(slideshowTimer);
     if (resumeTimer) clearTimeout(resumeTimer);
+    
     resumeTimer = setTimeout(function() {
       startSlideshow();
-      playSlideshowStep(); 
     }, RESUME_DELAY_MS);
   }
 
@@ -844,7 +913,7 @@
         prosesDataUI(json, isFirst);
 
         if (isFirst && !isSlideshowStopped) {
-          setTimeout(function() { startSlideshow(); playSlideshowStep(); }, 2000); 
+          setTimeout(function() { startSlideshow(); }, 2000); 
         }
       })
       .catch(function(err){
