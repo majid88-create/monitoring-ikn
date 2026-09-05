@@ -38,11 +38,11 @@
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
   /* ---------- Ticker Saham (Running Text) ---------- */
-  .ticker-wrap { display: flex; align-items: center; background: #040814; border-bottom: 1px solid var(--line); overflow: hidden; height: 38px; position: relative; }
+  .ticker-wrap { display: flex; align-items: center; background: #040814; border-top: 1px solid var(--line); overflow: hidden; height: 38px; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 50; }
   .ticker-track { display: flex; white-space: nowrap; animation: ticker 400s linear infinite; padding-left: 100vw; }
   .ticker-wrap:hover .ticker-track, .ticker-wrap:active .ticker-track { animation-play-state: paused; cursor: default; }
   
-  .ticker-item { margin-right: 20px; font-family: var(--font-mono); font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+  .ticker-item { margin-right: 45px; font-family: var(--font-mono); font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
   .ticker-item b { font-family: var(--font-display); font-size: 13px; color: var(--ink); text-transform: uppercase; letter-spacing: 0.02em; }
   .t-up { color: var(--green); }
   .t-down { color: var(--red); }
@@ -55,7 +55,8 @@
   .stat .num{ font-family:var(--font-mono); font-size:26px; font-weight:600; color:var(--teal); }
   .stat .lbl{ font-size:12.5px; color:var(--ink-dim); margin-top:2px; }
 
-  .layout{ display:grid; grid-template-columns: 1.15fr 1fr; gap:16px; padding:16px 26px 40px; align-items:stretch; }
+  /* Ditambah padding-bottom: 70px agar tidak tertutup ticker di bawah */
+  .layout{ display:grid; grid-template-columns: 1.15fr 1fr; gap:16px; padding:16px 26px 70px; align-items:stretch; }
   .panel{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; }
   
   .map-wrap{ height:600px; position:relative; }
@@ -143,10 +144,12 @@
 
   @media (max-width: 920px){ 
     .layout{ grid-template-columns:1fr; }
-    .panel-roster, .map-wrap { height: 500px; max-height: none; }
+    .panel-roster { height: 500px; max-height: none; }
   }
   @media (max-width: 768px) {
-    .ticker-item { font-size: 11.5px; margin-right: 15px; }
+    /* Peta diperkecil untuk Mobile */
+    .map-wrap { height: 350px; }
+    .ticker-item { font-size: 11.5px; margin-right: 24px; }
     .ticker-item b { font-size: 12.5px; }
   }
   @media (prefers-reduced-motion: reduce){
@@ -168,11 +171,6 @@
   <button class="icon-btn" id="refreshBtn" title="Refresh"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
 </div>
 
-<!-- TICKER SAHAM (RUNNING TEXT PROGRES PROYEK) -->
-<div class="ticker-wrap" id="tickerWrap" style="display:none;">
-  <div class="ticker-track" id="tickerTrack"></div>
-</div>
-
 <div class="stats" id="stats">
   <div class="stat"><div class="num mono" id="statOnline">0</div><div class="lbl">Lapangan online</div></div>
   <div class="stat"><div class="num mono" id="statKantor">0</div><div class="lbl">Aktif di komputer</div></div>
@@ -192,6 +190,11 @@
     </div>
     <div class="roster" id="roster"><div class="state">Memuat data monitoring…</div></div>
   </div>
+</div>
+
+<!-- TICKER SAHAM (RUNNING TEXT DIPINDAH KE BAWAH) -->
+<div class="ticker-wrap" id="tickerWrap" style="display:none;">
+  <div class="ticker-track" id="tickerTrack"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -362,7 +365,17 @@
     Object.keys(markerByName).forEach(function(key){ var m = markerByName[key]; if(m) { m.setZIndexOffset(0); if (m.getTooltip() && m.getTooltip().getElement()) m.getTooltip().getElement().classList.remove('tooltip-on-top'); } });
     var marker = markerByName[nama];
     if (marker){ marker.setZIndexOffset(1000); if (marker.getTooltip() && marker.getTooltip().getElement()) marker.getTooltip().getElement().classList.add('tooltip-on-top'); }
-    document.querySelectorAll('.person').forEach(function(el){ el.classList.toggle('selected', el.dataset.nama === nama); });
+    
+    document.querySelectorAll('.person').forEach(function(el){ 
+      var isSelected = el.dataset.nama === nama;
+      el.classList.toggle('selected', isSelected); 
+      
+      // AUTO-SCROLL UNTUK SOROTAN NAMA
+      if (isSelected && isProgrammaticMove) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+    
     if (routeLayer){ map.removeLayer(routeLayer); routeLayer = null; }
     
     var p = allPeople.find(function(x){ return x.nama === nama; }); if (!p) return; 
