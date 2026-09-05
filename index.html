@@ -416,8 +416,12 @@
     allPeople = (json.data || []).filter(masihRelevan);
     allPeople.forEach(function(p){ var currentActive = isAktif(p); if (isFirst) { wasActiveStatus[p.nama] = currentActive; lastOnlineTime[p.nama] = 0; } else { if (currentActive && !wasActiveStatus[p.nama]) { lastOnlineTime[p.nama] = Date.now(); highlightQueue[p.nama] = true; } wasActiveStatus[p.nama] = currentActive; } });
     document.getElementById('updatedAt').textContent = 'diperbarui ' + new Date(json.updatedAt).toLocaleTimeString('id-ID');
-    renderStats(allPeople, isFirst); renderMap(allPeople, isFirst); renderRoster(isFirst);
-    renderNongkrong(json.nongkrong); isiAlamatOtomatis(allPeople);
+    
+    renderStats(allPeople, isFirst); 
+    renderMap(allPeople, isFirst); 
+    renderRoster(isFirst);
+    renderNongkrong(json.nongkrong); 
+    isiAlamatOtomatis(allPeople);
   }
 
   function muat(){
