@@ -234,12 +234,14 @@
     var total = 0; (segmen || []).forEach(function(s){ if (kecualikanNama && kecualikanNama.indexOf(s.nama) !== -1) return; var diff = (new Date(s.selesai) - new Date(s.mulai)) / 1000; if (diff > 0) total += diff; }); return total;
   }
   function tagInfo(sumber){ if (sumber === 'kantor') return { label: 'Kantor', cls: 'kantor' }; if (sumber === 'lapangan+kantor') return { label: 'Perencana', cls: 'gab' }; return { label: 'Pengawas', cls: '' }; }
+  
   function makeIcon(gpsOnline, kompAktif, sumber){
     if (kompAktif && !gpsOnline) return L.divIcon({ html: '<span class="marker-dot komp-online"><span class="pulse-ring komp-pulse"></span></span>', className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8] });
     if (!gpsOnline) return L.divIcon({ html: '<span class="marker-dot offline"></span>', className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8] });
     var perencana = (sumber === 'lapangan+kantor' || sumber === 'kantor'), dotCls = perencana ? 'komp-online' : 'online', pulseCls = perencana ? 'komp-pulse' : '';
-    return L.divIcon({ html: '<span class="marker-dot ' + dotCls + '"><span class="pulse-ring ' + pulseCls + '</span></span>', className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8] });
+    return L.divIcon({ html: '<span class="marker-dot ' + dotCls + '"><span class="pulse-ring ' + pulseCls + '"></span></span>', className: 'marker-wrap', iconSize: [16, 16], iconAnchor: [8, 8] });
   }
+  
   function animateCount(el, to){
     if (reduceMotion){ el.textContent = to; return; }
     var t0 = null, dur = 700; function step(ts){ if (!t0) t0 = ts; var p = Math.min((ts - t0) / dur, 1); el.textContent = Math.round(p * to); if (p < 1) requestAnimationFrame(step); } requestAnimationFrame(step);
